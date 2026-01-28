@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String        @id
+  name          String
+  email         String
+  emailVerified Boolean       @default(false)
+  role          Role          @default(USER)
+  image         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  tutorProfile  TutorProfile?
+  bookings      Booking[]
+  reviews       Review[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+enum Role {
+  USER
+  STUDENT
+  TUTOR
+  ADMIN
+
+}
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification { 
+  id         String   @id 
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model TutorProfile {
+  id             String         @id @default(uuid())
+  userId         String         @unique
+  biography      String?
+  profileImage   String?
+  qualifications String?
+  categories     Category[]     @relation("CategoryTutors") // Many-to-Many relationship with Category
+  availability   Availability[]
+  bookings       Booking[]
+  reviews        Review[]
+  user           User           @relation(fields: [userId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Category {
+  id          String         @id @default(uuid())
+  name        String         @unique
+  description String?
+  tutors      TutorProfile[] @relation("CategoryTutors")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Availability {
+  id        String       @id @default(uuid())
+  tutorId   String
+  dayOfWeek String
+  startTime DateTime
+  endTime   DateTime
+  tutor     TutorProfile @relation(fields: [tutorId], references: [id])
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  studentId   String
+  tutorId     String
+  sessionDate DateTime
+  sessionLink String?
+  status      BookingStatus
+  student     User          @relation(fields: [studentId], references: [id])
+  tutor       TutorProfile  @relation(fields: [tutorId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model Review {
+  id         String       @id @default(uuid())
+  studentId  String
+  tutorId    String
+  rating     String
+  comment    String?
+  reviewDate DateTime     @default(now())
+  student    User         @relation(fields: [studentId], references: [id])
+  tutor      TutorProfile @relation(fields: [tutorId], references: [id])
+}
