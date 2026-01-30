@@ -87,7 +87,7 @@ model TutorProfile {
   biography      String?
   profileImage   String?
   qualifications String?
-  categories     Category[]     @relation("CategoryTutors") // Many-to-Many relationship with Category
+  categories     Category[]     @relation("CategoryTutors") 
   availability   Availability[]
   bookings       Booking[]
   reviews        Review[]

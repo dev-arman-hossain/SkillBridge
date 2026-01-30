@@ -1,4 +1,3 @@
-
 import { betterAuth } from "better-auth";
 import type { NextFunction, Request, Response } from "express";
 

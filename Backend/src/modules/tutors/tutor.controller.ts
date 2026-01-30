@@ -47,6 +47,16 @@ const createCategory = async (req: Request, res: Response) => {
   try {
     const data = req.body;
     console.log("category data", data);
+    
+    const {name, description} = data;
+    if(!name || !description){
+      return res.status(400).json({
+        success: false,
+        message: "name and description are required",
+      });
+    }
+
+
     const tutorCategory = await tutorService.createCategory(data);
     res.status(200).json({
       data: tutorCategory,
@@ -77,10 +87,46 @@ const updateTutorProfile = async (req: Request, res: Response) => {
   }
 };
 
+const availableStatus = async (req: Request, res: Response) => {
+  try {
+    const availabilityStatus = await tutorService.availableStatus(req.body);
+    return res.status(201).json({
+      success: true,
+      message: "session created successfully",
+      data: availabilityStatus,
+    });
+
+  } catch (error: any) {
+    console.error("session creation error:", error);
+
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Session creation failed",
+    });
+  }
+};
+
+
+const createTutorProfile = async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+    const createProfile = await tutorService.createTutorProfile(data);
+    res.status(200).json({
+      data: createProfile,
+      success: true,
+      message: "tuition profile updated",
+    });
+  } catch (error: any) {
+    res.send(error.message);
+  }
+};
+
 export const tutorController = {
   getAllTutors,
   getTutorById,
   tutorCategory,
   createCategory,
   updateTutorProfile,
+  availableStatus,
+  createTutorProfile
 };
