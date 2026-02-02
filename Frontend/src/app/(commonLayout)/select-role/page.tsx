@@ -12,7 +12,9 @@ export default function SelectRolePage() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<"STUDENT" | "TUTOR" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"STUDENT" | "TUTOR" | null>(
+    null,
+  );
 
   const handleRoleSelection = async (role: "STUDENT" | "TUTOR") => {
     if (!session?.user?.id) {
@@ -25,14 +27,16 @@ export default function SelectRolePage() {
     setSelectedRole(role);
 
     try {
-      // Update user role via backend API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/admin/users/${session.user.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/admin/users/${session.user.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ role }),
         },
-        body: JSON.stringify({ role }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update role");
@@ -40,7 +44,6 @@ export default function SelectRolePage() {
 
       toast.success(`Role set to ${role}!`);
 
-      // Redirect to appropriate dashboard
       setTimeout(() => {
         if (role === "STUDENT") {
           router.push("/student-dashboard");
@@ -57,12 +60,13 @@ export default function SelectRolePage() {
     }
   };
 
-  // If not logged in, redirect to login
   if (!session?.user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md">
-          <h2 className="text-2xl font-bold text-center mb-4">Authentication Required</h2>
+          <h2 className="text-2xl font-bold text-center mb-4">
+            Authentication Required
+          </h2>
           <p className="text-gray-600 text-center mb-6">
             Please login to select your role
           </p>
@@ -74,12 +78,13 @@ export default function SelectRolePage() {
     );
   }
 
-  // If user already has a role, redirect to dashboard
   if (session.user.role && session.user.role !== "USER") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="p-8 max-w-md">
-          <h2 className="text-2xl font-bold text-center mb-4">Role Already Set</h2>
+          <h2 className="text-2xl font-bold text-center mb-4">
+            Role Already Set
+          </h2>
           <p className="text-gray-600 text-center mb-6">
             You are already registered as a {session.user.role}
           </p>
@@ -104,7 +109,6 @@ export default function SelectRolePage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Student Card */}
           <Card
             className={`p-8 cursor-pointer transition-all hover:shadow-2xl hover:-translate-y-2 ${
               selectedRole === "STUDENT" ? "ring-4 ring-teal-500" : ""
@@ -121,7 +125,8 @@ export default function SelectRolePage() {
               </h2>
 
               <p className="text-gray-600 mb-6">
-                Find expert tutors and book sessions to learn new skills and improve your knowledge
+                Find expert tutors and book sessions to learn new skills and
+                improve your knowledge
               </p>
 
               <div className="space-y-3 text-left mb-8">
@@ -161,7 +166,6 @@ export default function SelectRolePage() {
             </div>
           </Card>
 
-          {/* Tutor Card */}
           <Card
             className={`p-8 cursor-pointer transition-all hover:shadow-2xl hover:-translate-y-2 ${
               selectedRole === "TUTOR" ? "ring-4 ring-blue-500" : ""
@@ -178,7 +182,8 @@ export default function SelectRolePage() {
               </h2>
 
               <p className="text-gray-600 mb-6">
-                Share your expertise, teach students, and earn money by offering tutoring services
+                Share your expertise, teach students, and earn money by offering
+                tutoring services
               </p>
 
               <div className="space-y-3 text-left mb-8">

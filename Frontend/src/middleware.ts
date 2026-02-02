@@ -1,27 +1,49 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { userService } from "./services/userService";
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  console.log(`[Middleware] Processing request for: ${pathname}`);
+
   let isAuthenticated = false;
   let userRole: string | null = null;
 
   try {
-    const { data } = await userService.getSession();
+   
+    const cookieHeader = request.headers.get("cookie") || "";
 
-    if (data && data.user) {
-      isAuthenticated = true;
-      userRole = (data.user as any).role || "USER";
+   
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const res = await fetch(`${apiUrl}/auth/get-session`, {
+      headers: {
+        Cookie: cookieHeader,
+      },
+      cache: "no-store",
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+
+      
+      if (data && data.user && data.user.id) {
+        isAuthenticated = true;
+        userRole = data.user.role || "USER";
+        console.log(`[Middleware] Authenticated user: ${data.user.email} with role: ${userRole}`);
+      } else {
+        console.log("[Middleware] No user found in session response");
+      }
+    } else {
+      console.log(`[Middleware] Session check failed with status: ${res.status}`);
     }
   } catch (error) {
-    console.error("Proxy auth error:", error);
-    // If session check fails, treat as unauthenticated
+    console.error("[Middleware] Auth error:", error);
+    
   }
 
   //* User is not authenticated
   if (!isAuthenticated) {
-    // Only redirect to login if trying to access protected routes
+    console.log(`[Middleware] User not authenticated, redirecting to login`);
+    
     if (
       pathname.startsWith("/student-dashboard") ||
       pathname.startsWith("/tutor-dashboard") ||
@@ -33,53 +55,54 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  console.log(`[Middleware] User authenticated with role: ${userRole}, allowing access to ${pathname}`);
+
   //* Role-based routing for authenticated users
   switch (userRole) {
     case "ADMIN":
-      // Admin trying to access other dashboards
+     
       if (
         pathname.startsWith("/student-dashboard") ||
         pathname.startsWith("/tutor-dashboard")
       ) {
         return NextResponse.redirect(new URL("/admin-dashboard", request.url));
       }
-      // Admin trying to select role (already has one)
+     
       if (pathname.startsWith("/select-role")) {
         return NextResponse.redirect(new URL("/admin-dashboard", request.url));
       }
       break;
 
     case "TUTOR":
-      // Tutor trying to access other dashboards
+
       if (
         pathname.startsWith("/admin-dashboard") ||
         pathname.startsWith("/student-dashboard")
       ) {
         return NextResponse.redirect(new URL("/tutor-dashboard", request.url));
       }
-      // Tutor trying to select role (already has one)
+     
       if (pathname.startsWith("/select-role")) {
         return NextResponse.redirect(new URL("/tutor-dashboard", request.url));
       }
       break;
 
     case "STUDENT":
-      // Student trying to access other dashboards
+   
       if (
         pathname.startsWith("/admin-dashboard") ||
         pathname.startsWith("/tutor-dashboard")
       ) {
         return NextResponse.redirect(new URL("/student-dashboard", request.url));
       }
-      // Student trying to select role (already has one)
+     
       if (pathname.startsWith("/select-role")) {
         return NextResponse.redirect(new URL("/student-dashboard", request.url));
       }
       break;
 
     case "USER":
-      // Regular users trying to access specialized dashboards
-      // Redirect them to select role page
+      
       if (
         pathname.startsWith("/admin-dashboard") ||
         pathname.startsWith("/tutor-dashboard") ||
@@ -90,7 +113,7 @@ export async function proxy(request: NextRequest) {
       break;
 
     default:
-      // Unknown role - redirect to login for dashboard access
+     
       if (
         pathname.startsWith("/admin-dashboard") ||
         pathname.startsWith("/tutor-dashboard") ||

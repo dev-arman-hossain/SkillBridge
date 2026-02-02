@@ -15,7 +15,7 @@ export default function TutorCard({ tutor }: TutorCardProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-      <div className="relative h-48 bg-gradient-to-r from-blue-400 to-purple-500">
+      <div className="relative h-48 bg-linear-to-r from-blue-400 to-purple-500">
         <Image
           src={profileImage}
           alt={tutor.name}

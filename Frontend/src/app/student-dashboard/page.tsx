@@ -9,9 +9,7 @@ import { Calendar, Clock, User, Video } from "lucide-react";
 
 export default function StudentDashboard() {
   const { data: session } = authClient.useSession();
-  const { bookings, loading, error } = useUserBookings(
-    session?.user?.id || null,
-  );
+  const { bookings, loading, error } = useUserBookings(session?.user?.id || null);
 
   if (loading) {
     return (
@@ -36,14 +34,15 @@ export default function StudentDashboard() {
   }
 
   const upcomingBookings = bookings.filter(
-    (b) => b.status === "PENDING" && new Date(b.sessionDate) > new Date(),
+    (b) => b.status === "PENDING" && new Date(b.sessionDate) > new Date()
   );
   const pastBookings = bookings.filter(
-    (b) => b.status === "COMPLETED" || new Date(b.sessionDate) <= new Date(),
+    (b) => b.status === "COMPLETED" || new Date(b.sessionDate) <= new Date()
   );
 
   return (
     <div className="p-8 space-y-8">
+
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
           Welcome back, {session?.user?.name}!
@@ -51,14 +50,13 @@ export default function StudentDashboard() {
         <p className="text-gray-600 mt-2">Manage your tutoring sessions</p>
       </div>
 
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Bookings</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {bookings.length}
-              </p>
+              <p className="text-3xl font-bold text-gray-900">{bookings.length}</p>
             </div>
             <Calendar className="w-12 h-12 text-blue-500" />
           </div>
@@ -68,9 +66,7 @@ export default function StudentDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Upcoming</p>
-              <p className="text-3xl font-bold text-teal-600">
-                {upcomingBookings.length}
-              </p>
+              <p className="text-3xl font-bold text-teal-600">{upcomingBookings.length}</p>
             </div>
             <Clock className="w-12 h-12 text-teal-500" />
           </div>
@@ -80,25 +76,19 @@ export default function StudentDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Completed</p>
-              <p className="text-3xl font-bold text-green-600">
-                {pastBookings.length}
-              </p>
+              <p className="text-3xl font-bold text-green-600">{pastBookings.length}</p>
             </div>
             <User className="w-12 h-12 text-green-500" />
           </div>
         </Card>
       </div>
 
+      
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Upcoming Sessions
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">Upcoming Sessions</h2>
           <Link href="/tutors">
-            <Button
-              variant="outline"
-              className="border-teal-500 text-teal-600 hover:bg-teal-50"
-            >
+            <Button variant="outline" className="border-teal-500 text-teal-600 hover:bg-teal-50">
               Book New Session
             </Button>
           </Link>
@@ -108,18 +98,13 @@ export default function StudentDashboard() {
           <Card className="p-8 text-center">
             <p className="text-gray-500 mb-4">No upcoming sessions</p>
             <Link href="/tutors">
-              <Button className="bg-teal-500 hover:bg-teal-600">
-                Find a Tutor
-              </Button>
+              <Button className="bg-teal-500 hover:bg-teal-600">Find a Tutor</Button>
             </Link>
           </Card>
         ) : (
           <div className="space-y-4">
             {upcomingBookings.map((booking) => (
-              <Card
-                key={booking.id}
-                className="p-6 hover:shadow-lg transition-shadow"
-              >
+              <Card key={booking.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -179,11 +164,10 @@ export default function StudentDashboard() {
         )}
       </div>
 
+
       {pastBookings.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Past Sessions
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Past Sessions</h2>
           <div className="space-y-4">
             {pastBookings.slice(0, 5).map((booking) => (
               <Card key={booking.id} className="p-6 bg-gray-50">

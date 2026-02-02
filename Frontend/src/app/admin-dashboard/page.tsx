@@ -52,10 +52,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleToggleEmailVerified = async (
-    userId: string,
-    currentStatus: boolean,
-  ) => {
+  const handleToggleEmailVerified = async (userId: string, currentStatus: boolean) => {
     if (!token) {
       toast.error("Not authenticated");
       return;
@@ -105,11 +102,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-8 space-y-8">
+
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600 mt-2">Manage users and platform settings</p>
       </div>
 
+  
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="p-6">
           <div className="flex items-center justify-between">
@@ -145,14 +144,13 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Students</p>
-              <p className="text-3xl font-bold text-green-600">
-                {stats.students}
-              </p>
+              <p className="text-3xl font-bold text-green-600">{stats.students}</p>
             </div>
             <User className="w-12 h-12 text-green-500" />
           </div>
         </Card>
       </div>
+
 
       <Card className="overflow-hidden">
         <div className="p-6 border-b border-gray-200">
@@ -194,9 +192,7 @@ export default function AdminDashboard() {
                         </span>
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {user.name}
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
                         <div className="text-sm text-gray-500">
                           ID: {user.id.slice(0, 8)}...
                         </div>
@@ -211,9 +207,7 @@ export default function AdminDashboard() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
                       value={user.role}
-                      onChange={(e) =>
-                        handleRoleChange(user.id, e.target.value)
-                      }
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
                       disabled={updating || user.id === session?.user?.id}
                       className="text-sm border rounded px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -226,9 +220,7 @@ export default function AdminDashboard() {
 
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
-                      onClick={() =>
-                        handleToggleEmailVerified(user.id, user.emailVerified)
-                      }
+                      onClick={() => handleToggleEmailVerified(user.id, user.emailVerified)}
                       disabled={updating}
                       className="disabled:opacity-50 disabled:cursor-not-allowed"
                     >

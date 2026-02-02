@@ -4,13 +4,13 @@ import Link from "next/link";
 export const Banner = () => {
   return (
     <div>
-      <div className="py-[120px] container mx-auto flex items-center justify-between">
+      <div className="py-30 container mx-auto flex items-center justify-between">
         <div className="">
           <h4 className="py-2 bg-[#2B9E9C] inline-block px-4 rounded-[50px] text-[14px] font-medium text-[#070707]">
             Trusted by 10,000+ learners worldwide
           </h4>
 
-          <div className="py-6 w-[600px]">
+          <div className="py-6 w-150">
             <h1 className="text-[60px] text-[#131720] font-extrabold text-foreground leading-tight ">
               Learn Anything from
               <span className="text-[#2B9E9C]">Expert Tutors</span> Worldwide

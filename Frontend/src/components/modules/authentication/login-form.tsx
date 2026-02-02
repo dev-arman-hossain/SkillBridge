@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -31,6 +31,28 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { data: session } = authClient.useSession();
+
+  // Auto-redirect logged-in users to their dashboard
+  useEffect(() => {
+    if (session?.user) {
+      const getDashboardUrl = () => {
+        const role = session.user.role;
+        switch (role) {
+          case "ADMIN":
+            return "/admin-dashboard";
+          case "TUTOR":
+            return "/tutor-dashboard";
+          case "STUDENT":
+            return "/student-dashboard";
+          default:
+            return "/select-role";
+        }
+      };
+
+      console.log("Redirecting logged-in user to dashboard:", getDashboardUrl());
+      router.push(getDashboardUrl());
+    }
+  }, [session, router]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,21 +106,21 @@ export function LoginForm({
     }
   };
 
-  // If already logged in, show message
+  // Show loading state while redirecting
   if (session?.user) {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
         <Card>
           <CardHeader>
-            <CardTitle>Already Logged In</CardTitle>
+            <CardTitle>Redirecting...</CardTitle>
             <CardDescription>
-              You are already logged in as {session.user.email}
+              You are already logged in. Redirecting to your dashboard...
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push("/")} className="w-full">
-              Go to Home
-            </Button>
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -14,7 +14,7 @@ import {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-// Custom error class for API errors
+
 export class ApiError extends Error {
   status: number;
   data: any;
@@ -27,14 +27,13 @@ export class ApiError extends Error {
   }
 }
 
-// Generic API request handler with credentials
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      credentials: "include", // Include cookies for session auth
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
@@ -61,7 +60,6 @@ async function apiRequest<T>(
   }
 }
 
-// Tutor API
 export const tutorApi = {
   // Get all tutors with optional filters
   getAllTutors: (filters?: { category?: string; search?: string; minRating?: number }) => {

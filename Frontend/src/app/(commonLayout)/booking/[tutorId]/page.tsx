@@ -10,7 +10,16 @@ import { Label } from "@/components/ui/label";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Calendar, Clock, User, Star, ArrowLeft, Video, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  User,
+  Star,
+  ArrowLeft,
+  Video,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import Link from "next/link";
 
 interface Availability {
@@ -34,14 +43,22 @@ export default function BookingPage() {
   const [sessionLink, setSessionLink] = useState("");
   const [availability, setAvailability] = useState<Availability[]>([]);
   const [loadingAvailability, setLoadingAvailability] = useState(true);
-  const [selectedDayAvailability, setSelectedDayAvailability] = useState<Availability | null>(null);
+  const [selectedDayAvailability, setSelectedDayAvailability] =
+    useState<Availability | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
-  // Helper function to get the next occurrence of a day of week
   const getNextDayOfWeek = (dayName: string): string => {
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to avoid timezone issues
+    today.setHours(0, 0, 0, 0);
     const todayIndex = today.getDay();
     const targetIndex = days.indexOf(dayName);
 
@@ -49,49 +66,40 @@ export default function BookingPage() {
 
     let daysUntilTarget = targetIndex - todayIndex;
     if (daysUntilTarget <= 0) {
-      daysUntilTarget += 7; // Move to next week if today or past
+      daysUntilTarget += 7;
     }
 
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() + daysUntilTarget);
 
-    // Format as YYYY-MM-DD using local date parts to avoid timezone shift
     const year = targetDate.getFullYear();
     const month = (targetDate.getMonth() + 1).toString().padStart(2, "0");
     const day = targetDate.getDate().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
-  // Helper to extract time from UTC date string
   const extractTimeFromDate = (dateString: string): string => {
     const date = new Date(dateString);
-    // Get UTC hours/minutes since server stores in UTC
+
     const hours = date.getUTCHours().toString().padStart(2, "0");
     const minutes = date.getUTCMinutes().toString().padStart(2, "0");
     return `${hours}:${minutes}`;
   };
 
-  // Handle availability slot selection
   const handleSlotSelect = (avail: Availability) => {
     setSelectedSlot(avail.id);
 
-    // Set the date to the next occurrence of this day
     const nextDate = getNextDayOfWeek(avail.dayOfWeek);
     setSessionDate(nextDate);
 
-    // Set the time to the start time of the slot (using UTC)
     const time = extractTimeFromDate(avail.startTime);
     setSessionTime(time);
-
-    // Directly set the selected day availability to avoid timing issues
-    setSelectedDayAvailability(avail);
 
     toast.success(`Selected ${avail.dayOfWeek}`, {
       description: `Date: ${nextDate}, Time: ${time}. You can adjust if needed.`,
     });
   };
 
-  // Fetch tutor availability
   useEffect(() => {
     const fetchAvailability = async () => {
       if (!tutor?.tutorProfile?.id) return;
@@ -99,19 +107,22 @@ export default function BookingPage() {
       try {
         setLoadingAvailability(true);
 
-        // Fetch availability for this specific tutor
         const response = await tutorApi.getAvailability({
-          tutorId: tutor.tutorProfile.id
+          tutorId: tutor.tutorProfile.id,
         });
 
         console.log("Availability response:", response);
 
-        // Extract availability data
         const availabilityData = response.data || [];
-        setAvailability(Array.isArray(availabilityData) ? availabilityData : []);
+        setAvailability(
+          Array.isArray(availabilityData) ? availabilityData : [],
+        );
 
         if (availabilityData.length === 0) {
-          console.warn("No availability slots found for tutor:", tutor.tutorProfile.id);
+          console.warn(
+            "No availability slots found for tutor:",
+            tutor.tutorProfile.id,
+          );
         } else {
           console.log(`Found ${availabilityData.length} availability slots`);
         }
@@ -128,21 +139,20 @@ export default function BookingPage() {
     }
   }, [tutor?.tutorProfile?.id]);
 
-  // Check availability when date changes manually (not from slot selection)
   useEffect(() => {
     if (sessionDate && availability.length > 0) {
-      // Parse date parts directly to avoid timezone issues
       const [year, month, day] = sessionDate.split("-").map(Number);
       const selectedDate = new Date(year, month - 1, day);
-      const dayOfWeek = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+      const dayOfWeek = selectedDate.toLocaleDateString("en-US", {
+        weekday: "long",
+      });
 
       const dayAvailability = availability.find(
-        (avail) => avail.dayOfWeek === dayOfWeek
+        (avail) => avail.dayOfWeek === dayOfWeek,
       );
 
       setSelectedDayAvailability(dayAvailability || null);
 
-      // If user manually changed date, update selectedSlot to match
       if (dayAvailability) {
         setSelectedSlot(dayAvailability.id);
       } else {
@@ -157,9 +167,6 @@ export default function BookingPage() {
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // ===== VALIDATION PHASE =====
-
-    // 1. Check authentication
     if (!session?.user) {
       toast.error("Please login to book a session", {
         description: "You need to be logged in to make a booking",
@@ -168,16 +175,15 @@ export default function BookingPage() {
       return;
     }
 
-    // 2. Check user role
     const userRole = (session.user as any).role;
     if (userRole && userRole !== "STUDENT" && userRole !== "USER") {
       toast.error("Only students can book sessions", {
-        description: "Please switch to a student account to book tutoring sessions",
+        description:
+          "Please switch to a student account to book tutoring sessions",
       });
       return;
     }
 
-    // 3. Validate date selection
     if (!sessionDate) {
       toast.error("Please select a date", {
         description: "Choose a date for your tutoring session",
@@ -185,7 +191,6 @@ export default function BookingPage() {
       return;
     }
 
-    // 4. Validate time selection
     if (!sessionTime) {
       toast.error("Please select a time", {
         description: "Choose a time for your tutoring session",
@@ -193,7 +198,6 @@ export default function BookingPage() {
       return;
     }
 
-    // 5. Validate tutor profile exists
     if (!tutor?.tutorProfile?.id) {
       toast.error("Tutor profile not found", {
         description: "This tutor hasn't set up their profile yet",
@@ -201,11 +205,11 @@ export default function BookingPage() {
       return;
     }
 
-    // 6. Create UTC datetime from selected date and time
-    // The time input is in UTC (matching tutor availability), so we create UTC datetime
     const [year, month, day] = sessionDate.split("-").map(Number);
     const [hours, minutes] = sessionTime.split(":").map(Number);
-    const selectedDateTimeUTC = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0, 0));
+    const selectedDateTimeUTC = new Date(
+      Date.UTC(year, month - 1, day, hours, minutes, 0, 0),
+    );
     const now = new Date();
 
     if (selectedDateTimeUTC <= now) {
@@ -215,7 +219,6 @@ export default function BookingPage() {
       return;
     }
 
-    // 7. Validate date is not too far in the future (e.g., max 3 months)
     const threeMonthsFromNow = new Date();
     threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
 
@@ -226,21 +229,17 @@ export default function BookingPage() {
       return;
     }
 
-    // 8. Validate session link if provided
     if (sessionLink && !isValidUrl(sessionLink)) {
       toast.error("Invalid video link", {
-        description: "Please enter a valid URL (e.g., https://meet.google.com/...)",
+        description:
+          "Please enter a valid URL (e.g., https://meet.google.com/...)",
       });
       return;
     }
 
-    // ===== BOOKING PHASE =====
-
     try {
-      // Use UTC datetime ISO string
       const dateTimeString = selectedDateTimeUTC.toISOString();
 
-      // Show loading toast
       const loadingToast = toast.loading("Creating your booking...", {
         description: "Please wait while we process your request",
       });
@@ -252,10 +251,8 @@ export default function BookingPage() {
         sessionLink: sessionLink || `https://meet.google.com/new`,
       });
 
-      // Dismiss loading toast
       toast.dismiss(loadingToast);
 
-      // Format time for display
       const displayTime = selectedDateTimeUTC.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
@@ -263,22 +260,16 @@ export default function BookingPage() {
         timeZone: "UTC",
       });
 
-      // Show success message
       toast.success("Booking confirmed!", {
         description: `Session with ${tutor.name} on ${sessionDate} at ${displayTime}`,
       });
 
-      // Redirect to student dashboard after short delay
       setTimeout(() => {
         router.push("/student-dashboard");
       }, 2000);
-
     } catch (err: any) {
       console.error("Booking error:", err);
 
-      // ===== ERROR HANDLING =====
-
-      // Network errors
       if (err.message.includes("fetch") || err.message.includes("network")) {
         toast.error("Network error", {
           description: "Please check your internet connection and try again",
@@ -286,39 +277,44 @@ export default function BookingPage() {
         return;
       }
 
-      // Tutor availability errors
-      if (err.message.includes("not available") || err.message.includes("availability")) {
+      if (
+        err.message.includes("not available") ||
+        err.message.includes("availability")
+      ) {
         toast.error("Tutor not available", {
-          description: "This tutor is not available at the selected time. Please choose a different time.",
+          description:
+            "This tutor is not available at the selected time. Please choose a different time.",
         });
         return;
       }
 
-      // Time slot conflict
       if (err.message.includes("time") || err.message.includes("slot")) {
         toast.error("Time slot unavailable", {
-          description: "This time slot is already booked. Please choose another time.",
+          description:
+            "This time slot is already booked. Please choose another time.",
         });
         return;
       }
 
-      // Tutor profile errors
       if (err.message.includes("Tutor profile not found")) {
         toast.error("Tutor unavailable", {
-          description: "This tutor's profile is not set up yet. Please try another tutor.",
+          description:
+            "This tutor's profile is not set up yet. Please try another tutor.",
         });
         return;
       }
 
-      // Session date errors
-      if (err.message.includes("session time") || err.message.includes("between")) {
+      if (
+        err.message.includes("session time") ||
+        err.message.includes("between")
+      ) {
         toast.error("Invalid session time", {
-          description: "Please select a time within the tutor's availability window.",
+          description:
+            "Please select a time within the tutor's availability window.",
         });
         return;
       }
 
-      // Generic API errors
       if (err.message.includes("400")) {
         toast.error("Invalid booking request", {
           description: "Please check your booking details and try again",
@@ -343,19 +339,19 @@ export default function BookingPage() {
 
       if (err.message.includes("500")) {
         toast.error("Server error", {
-          description: "Something went wrong on our end. Please try again later.",
+          description:
+            "Something went wrong on our end. Please try again later.",
         });
         return;
       }
 
-      // Default error message
       toast.error("Booking failed", {
-        description: err.message || "An unexpected error occurred. Please try again.",
+        description:
+          err.message || "An unexpected error occurred. Please try again.",
       });
     }
   };
 
-  // Helper function to validate URLs
   const isValidUrl = (url: string): boolean => {
     try {
       new URL(url);
@@ -384,7 +380,9 @@ export default function BookingPage() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <Card className="p-8 max-w-2xl mx-auto border-red-200 bg-red-50">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Tutor Not Found</h2>
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              Tutor Not Found
+            </h2>
             <p className="text-red-600 mb-6">
               {error || "The tutor you're looking for doesn't exist."}
             </p>
@@ -400,15 +398,17 @@ export default function BookingPage() {
     );
   }
 
-  // Get minimum date (today)
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-12">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <Link href="/tutors">
-            <Button variant="ghost" className="mb-8 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300">
+            <Button
+              variant="ghost"
+              className="mb-8 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300"
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Tutors
             </Button>
@@ -429,15 +429,24 @@ export default function BookingPage() {
                         <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
                       </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{tutor.name}</h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">{tutor.email}</p>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                      {tutor.name}
+                    </h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                      {tutor.email}
+                    </p>
                   </div>
 
                   <div className="flex items-center justify-center gap-1 mb-6 bg-slate-50 dark:bg-slate-800 rounded-xl py-3 px-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                      />
                     ))}
-                    <span className="text-sm text-slate-600 dark:text-slate-300 ml-2 font-semibold">(5.0)</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-300 ml-2 font-semibold">
+                      (5.0)
+                    </span>
                   </div>
 
                   {tutor.tutorProfile?.biography && (
@@ -502,7 +511,8 @@ export default function BookingPage() {
                       </h3>
                       {!loadingAvailability && availability.length > 0 && (
                         <span className="text-xs bg-teal-200 dark:bg-teal-800 text-teal-900 dark:text-teal-100 px-3 py-1.5 rounded-full font-semibold">
-                          {availability.length} {availability.length === 1 ? 'slot' : 'slots'}
+                          {availability.length}{" "}
+                          {availability.length === 1 ? "slot" : "slots"}
                         </span>
                       )}
                     </div>
@@ -520,7 +530,9 @@ export default function BookingPage() {
                           No specific availability set
                         </p>
                         <p className="text-teal-700 dark:text-teal-300 text-sm leading-relaxed">
-                          This tutor hasn't set their availability schedule yet. You can still book a session and the tutor will confirm the time with you.
+                          This tutor hasn't set their availability schedule yet.
+                          You can still book a session and the tutor will
+                          confirm the time with you.
                         </p>
                       </div>
                     ) : (
@@ -528,12 +540,15 @@ export default function BookingPage() {
                         {availability.map((avail, index) => {
                           const startDate = new Date(avail.startTime);
                           const endDate = new Date(avail.endTime);
-                          const startTime = startDate.toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                            timeZone: "UTC",
-                          });
+                          const startTime = startDate.toLocaleTimeString(
+                            "en-US",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                              timeZone: "UTC",
+                            },
+                          );
                           const endTime = endDate.toLocaleTimeString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -555,13 +570,19 @@ export default function BookingPage() {
                               }`}
                             >
                               <div className="flex items-center gap-3">
-                                <div className={`w-2.5 h-2.5 rounded-full ${isSelected ? "bg-teal-600 dark:bg-teal-400" : "bg-green-500"}`}></div>
-                                <span className={`font-bold min-w-[100px] text-left ${isSelected ? "text-teal-900 dark:text-teal-100" : "text-slate-700 dark:text-slate-200"}`}>
+                                <div
+                                  className={`w-2.5 h-2.5 rounded-full ${isSelected ? "bg-teal-600 dark:bg-teal-400" : "bg-green-500"}`}
+                                ></div>
+                                <span
+                                  className={`font-bold min-w-[100px] text-left ${isSelected ? "text-teal-900 dark:text-teal-100" : "text-slate-700 dark:text-slate-200"}`}
+                                >
                                   {avail.dayOfWeek}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className={`font-semibold ${isSelected ? "text-teal-800 dark:text-teal-200" : "text-slate-600 dark:text-slate-300"}`}>
+                                <span
+                                  className={`font-semibold ${isSelected ? "text-teal-800 dark:text-teal-200" : "text-slate-600 dark:text-slate-300"}`}
+                                >
                                   {startTime} - {endTime}
                                 </span>
                                 {isSelected && (
@@ -573,7 +594,8 @@ export default function BookingPage() {
                         })}
                         <p className="text-xs text-teal-700 dark:text-teal-300 mt-3 flex items-center gap-1.5 bg-teal-100 dark:bg-teal-900/30 p-3 rounded-lg">
                           <Clock className="w-4 h-4" />
-                          Click on a time slot to auto-fill the date and time below
+                          Click on a time slot to auto-fill the date and time
+                          below
                         </p>
                       </div>
                     )}
@@ -581,7 +603,10 @@ export default function BookingPage() {
 
                   <form onSubmit={handleBooking} className="space-y-6">
                     <div>
-                      <Label htmlFor="date" className="flex items-center gap-2 mb-3 text-slate-900 dark:text-white font-semibold">
+                      <Label
+                        htmlFor="date"
+                        className="flex items-center gap-2 mb-3 text-slate-900 dark:text-white font-semibold"
+                      >
                         <Calendar className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                         Session Date
                       </Label>
@@ -602,14 +627,23 @@ export default function BookingPage() {
                             <div className="flex items-start gap-3 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 p-4 rounded-xl border border-green-200 dark:border-green-800">
                               <CheckCircle2 className="w-5 h-5 mt-0.5 flex-shrink-0" />
                               <div>
-                                <p className="font-semibold mb-1">Tutor available on {selectedDayAvailability.dayOfWeek}</p>
+                                <p className="font-semibold mb-1">
+                                  Tutor available on{" "}
+                                  {selectedDayAvailability.dayOfWeek}
+                                </p>
                                 <p className="text-green-600 dark:text-green-400 text-xs">
-                                  {new Date(selectedDayAvailability.startTime).toLocaleTimeString("en-US", {
+                                  {new Date(
+                                    selectedDayAvailability.startTime,
+                                  ).toLocaleTimeString("en-US", {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                     hour12: true,
                                     timeZone: "UTC",
-                                  })} - {new Date(selectedDayAvailability.endTime).toLocaleTimeString("en-US", {
+                                  })}{" "}
+                                  -{" "}
+                                  {new Date(
+                                    selectedDayAvailability.endTime,
+                                  ).toLocaleTimeString("en-US", {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                     hour12: true,
@@ -622,11 +656,22 @@ export default function BookingPage() {
                             <div className="flex items-start gap-3 text-sm text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800">
                               <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                               <div>
-                                <p className="font-semibold mb-1">Tutor may not be available</p>
+                                <p className="font-semibold mb-1">
+                                  Tutor may not be available
+                                </p>
                                 <p className="text-yellow-600 dark:text-yellow-400 text-xs">
-                                  No availability set for {(() => {
-                                    const [year, month, day] = sessionDate.split("-").map(Number);
-                                    return new Date(year, month - 1, day).toLocaleDateString("en-US", { weekday: "long" });
+                                  No availability set for{" "}
+                                  {(() => {
+                                    const [year, month, day] = sessionDate
+                                      .split("-")
+                                      .map(Number);
+                                    return new Date(
+                                      year,
+                                      month - 1,
+                                      day,
+                                    ).toLocaleDateString("en-US", {
+                                      weekday: "long",
+                                    });
                                   })()}
                                 </p>
                               </div>
@@ -641,7 +686,10 @@ export default function BookingPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="time" className="flex items-center gap-2 mb-3 text-slate-900 dark:text-white font-semibold">
+                      <Label
+                        htmlFor="time"
+                        className="flex items-center gap-2 mb-3 text-slate-900 dark:text-white font-semibold"
+                      >
                         <Clock className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                         Session Time
                       </Label>
@@ -660,7 +708,10 @@ export default function BookingPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="link" className="flex items-center gap-2 mb-3 text-slate-900 dark:text-white font-semibold">
+                      <Label
+                        htmlFor="link"
+                        className="flex items-center gap-2 mb-3 text-slate-900 dark:text-white font-semibold"
+                      >
                         <Video className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                         Video Call Link (Optional)
                       </Label>
@@ -685,21 +736,33 @@ export default function BookingPage() {
                         </h3>
                         <div className="space-y-3 text-sm">
                           <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
-                            <span className="text-teal-700 dark:text-teal-300">Tutor:</span>
-                            <span className="font-semibold text-teal-900 dark:text-teal-100">{tutor.name}</span>
+                            <span className="text-teal-700 dark:text-teal-300">
+                              Tutor:
+                            </span>
+                            <span className="font-semibold text-teal-900 dark:text-teal-100">
+                              {tutor.name}
+                            </span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
-                            <span className="text-teal-700 dark:text-teal-300">Date:</span>
+                            <span className="text-teal-700 dark:text-teal-300">
+                              Date:
+                            </span>
                             <span className="font-semibold text-teal-900 dark:text-teal-100">
                               {new Date(sessionDate).toLocaleDateString()}
                             </span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-teal-200 dark:border-teal-800">
-                            <span className="text-teal-700 dark:text-teal-300">Time:</span>
-                            <span className="font-semibold text-teal-900 dark:text-teal-100">{sessionTime}</span>
+                            <span className="text-teal-700 dark:text-teal-300">
+                              Time:
+                            </span>
+                            <span className="font-semibold text-teal-900 dark:text-teal-100">
+                              {sessionTime}
+                            </span>
                           </div>
                           <div className="flex justify-between items-center py-2">
-                            <span className="text-teal-700 dark:text-teal-300">Status:</span>
+                            <span className="text-teal-700 dark:text-teal-300">
+                              Status:
+                            </span>
                             <span className="font-semibold text-teal-900 dark:text-teal-100 bg-teal-200 dark:bg-teal-900/50 px-3 py-1 rounded-full">
                               Pending Confirmation
                             </span>
@@ -714,7 +777,10 @@ export default function BookingPage() {
                           <AlertCircle className="w-5 h-5 flex-shrink-0" />
                           <span>
                             You need to be logged in to book a session.{" "}
-                            <Link href="/login" className="underline font-semibold hover:text-yellow-700 dark:hover:text-yellow-300">
+                            <Link
+                              href="/login"
+                              className="underline font-semibold hover:text-yellow-700 dark:hover:text-yellow-300"
+                            >
                               Login here
                             </Link>
                           </span>
@@ -755,7 +821,9 @@ export default function BookingPage() {
                       <div className="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 font-bold text-blue-700 dark:text-blue-300">
                         1
                       </div>
-                      <span>Your booking request will be sent to the tutor</span>
+                      <span>
+                        Your booking request will be sent to the tutor
+                      </span>
                     </li>
                     <li className="flex items-start gap-3 text-sm text-blue-800 dark:text-blue-200">
                       <div className="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0 font-bold text-blue-700 dark:text-blue-300">
