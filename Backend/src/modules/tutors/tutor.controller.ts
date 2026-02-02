@@ -1,123 +1,121 @@
 import { Request, Response } from "express";
 import { tutorService } from "./tutor.service";
+import { sendSuccess, sendError } from "../../utils/ApiError";
 
 const getAllTutors = async (req: Request, res: Response) => {
   try {
-    const tutors = await tutorService.alltutors(req, res);
-    res.status(200).json({
-      data: tutors,
-      success: true,
-      message: "Tutors retrieved successfully",
-    });
-  } catch (error: any) {
-    res.send(error.message);
+    const { category, search, minRating } = req.query;
+    const filters: { category?: string; search?: string; minRating?: number } = {};
+    if (typeof category === "string") filters.category = category;
+    if (typeof search === "string") filters.search = search;
+    if (typeof minRating === "string") filters.minRating = parseFloat(minRating);
+
+    const tutors = await tutorService.alltutors(filters);
+    return sendSuccess(res, tutors, "Tutors retrieved successfully");
+  } catch (error) {
+    return sendError(res, error);
   }
 };
 
 const getTutorById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const tutors = await tutorService.getTutorById(id as string);
-    res.status(200).json({
-      data: tutors,
-      success: true,
-      message: "Tutors single successfully",
-    });
-  } catch (error: any) {
-    res.send(error.message);
+    const id = req.params.id as string;
+    const tutor = await tutorService.getTutorById(id);
+    return sendSuccess(res, tutor, "Tutor retrieved successfully");
+  } catch (error) {
+    return sendError(res, error);
   }
 };
 
-const tutorCategory = async (req: Request, res: Response) => {
+const tutorCategory = async (_req: Request, res: Response) => {
   try {
-    const data = req.body;
-    console.log("category data", data);
-    const tutorCategory = await tutorService.tutorCategory();
-    res.status(200).json({
-      data: tutorCategory,
-      success: true,
-      message: "tuition category",
-    });
-  } catch (error: any) {
-    res.send(error.message);
+    const categories = await tutorService.tutorCategory();
+    return sendSuccess(res, categories, "Categories retrieved successfully");
+  } catch (error) {
+    return sendError(res, error);
   }
 };
 
 const createCategory = async (req: Request, res: Response) => {
   try {
-    const data = req.body;
-    console.log("category data", data);
-    
-    const {name, description} = data;
-    if(!name || !description){
+    const { name, description } = req.body;
+    if (!name) {
       return res.status(400).json({
         success: false,
-        message: "name and description are required",
+        message: "Category name is required",
       });
     }
+    const category = await tutorService.createCategory({ name, description });
+    return sendSuccess(res, category, "Category created successfully", 201);
+  } catch (error) {
+    return sendError(res, error);
+  }
+};
 
+const updateCategory = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const data = req.body;
+    const category = await tutorService.updateCategory(id, data);
+    return sendSuccess(res, category, "Category updated successfully");
+  } catch (error) {
+    return sendError(res, error);
+  }
+};
 
-    const tutorCategory = await tutorService.createCategory(data);
-    res.status(200).json({
-      data: tutorCategory,
-      success: true,
-      message: "tuition category",
-    });
-  } catch (error: any) {
-    res.send(error.message);
+const deleteCategory = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const result = await tutorService.deleteCategory(id);
+    return sendSuccess(res, result, "Category deleted successfully");
+  } catch (error) {
+    return sendError(res, error);
   }
 };
 
 const updateTutorProfile = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const profileData = req.body;
-
-    const tutorData = await tutorService.updateTutorProfile(
-      id as string,
-      profileData,
-    );
-    res.status(200).json(tutorData);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json({
-      error: "profile update failed",
-      details: e,
-    });
+    const tutorData = await tutorService.updateTutorProfile(id, profileData);
+    return sendSuccess(res, tutorData, "Profile updated successfully");
+  } catch (error) {
+    return sendError(res, error);
   }
 };
 
 const availableStatus = async (req: Request, res: Response) => {
   try {
-    const availabilityStatus = await tutorService.availableStatus(req.body);
-    return res.status(201).json({
-      success: true,
-      message: "session created successfully",
-      data: availabilityStatus,
-    });
-
-  } catch (error: any) {
-    console.error("session creation error:", error);
-
-    return res.status(400).json({
-      success: false,
-      message: error.message || "Session creation failed",
-    });
+    const availability = await tutorService.availableStatus(req.body);
+    return sendSuccess(res, availability, "Availability set successfully", 201);
+  } catch (error) {
+    return sendError(res, error);
   }
 };
 
+const deleteAvailability = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const result = await tutorService.deleteAvailability(id);
+    return sendSuccess(res, result, "Availability deleted successfully");
+  } catch (error) {
+    return sendError(res, error);
+  }
+};
 
 const createTutorProfile = async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    const createProfile = await tutorService.createTutorProfile(data);
-    res.status(200).json({
-      data: createProfile,
-      success: true,
-      message: "tuition profile updated",
-    });
-  } catch (error: any) {
-    res.send(error.message);
+    if (!data.userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+    const profile = await tutorService.createTutorProfile(data);
+    return sendSuccess(res, profile, "Tutor profile created successfully", 201);
+  } catch (error) {
+    return sendError(res, error);
   }
 };
 
@@ -126,7 +124,10 @@ export const tutorController = {
   getTutorById,
   tutorCategory,
   createCategory,
+  updateCategory,
+  deleteCategory,
   updateTutorProfile,
   availableStatus,
-  createTutorProfile
+  deleteAvailability,
+  createTutorProfile,
 };

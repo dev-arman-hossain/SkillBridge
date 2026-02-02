@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { auth as authInstance } from "../../lib/auth";
 import type { NextFunction, Request, Response } from "express";
 
 export enum UserRole {
@@ -21,8 +21,6 @@ declare global {
     }
   }
 }
-
-const authInstance = betterAuth({});
 
 const auth = (...roles: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
