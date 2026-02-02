@@ -27,6 +27,10 @@ const updateBooking = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { status } = req.body;
 
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ error: "Booking ID is required" });
+    }
+
     if (!status) {
       return res.status(400).json({ error: "Status is required" });
     }
@@ -66,6 +70,10 @@ const getUserBookings = async (req: Request, res: Response) => {
 const getBookingById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ error: "Booking ID is required" });
+    }
 
     const booking = await bookingService.getBookingById(id);
 

@@ -33,6 +33,10 @@ const getTutorReviews = async (req: Request, res: Response) => {
   try {
     const { tutorId } = req.params;
 
+    if (!tutorId || typeof tutorId !== 'string') {
+      return res.status(400).json({ error: "Tutor ID is required" });
+    }
+
     const reviews = await reviewService.getReviewsByTutor(tutorId);
 
     return res.status(200).json({
@@ -49,6 +53,10 @@ const getTutorReviews = async (req: Request, res: Response) => {
 const getStudentReviews = async (req: Request, res: Response) => {
   try {
     const { studentId } = req.params;
+
+    if (!studentId || typeof studentId !== 'string') {
+      return res.status(400).json({ error: "Student ID is required" });
+    }
 
     const reviews = await reviewService.getReviewsByStudent(studentId);
 
@@ -81,6 +89,10 @@ const getAllReviews = async (req: Request, res: Response) => {
 const getReviewById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ error: "Review ID is required" });
+    }
 
     const review = await reviewService.getReviewById(id);
 
