@@ -16,6 +16,7 @@ export interface TutorProfile {
   profileImage: string;
   qualifications: string;
   user?: User;
+  categories?: Category[];
   createdAt: string;
   updatedAt: string;
 }

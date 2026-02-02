@@ -10,20 +10,14 @@ import { Users, Shield, GraduationCap, User, Trash2 } from "lucide-react";
 
 export default function AdminDashboard() {
   const { data: session } = authClient.useSession();
-  const token = session?.session?.token || null;
 
-  const { users, loading, error, refetch } = useAllUsers(token);
-  const { updateUser, loading: updating } = useUpdateUser(token);
-  const { deleteUser, loading: deleting } = useDeleteUser(token);
+  const { users, loading, error, refetch } = useAllUsers();
+  const { updateUser, loading: updating } = useUpdateUser();
+  const { deleteUser, loading: deleting } = useDeleteUser();
 
   const [editingUser, setEditingUser] = useState<string | null>(null);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    if (!token) {
-      toast.error("Not authenticated");
-      return;
-    }
-
     try {
       await updateUser(userId, { role: newRole as any });
       toast.success("User role updated successfully!");
@@ -34,11 +28,6 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!token) {
-      toast.error("Not authenticated");
-      return;
-    }
-
     if (!confirm(`Are you sure you want to delete user "${userName}"?`)) {
       return;
     }
@@ -53,11 +42,6 @@ export default function AdminDashboard() {
   };
 
   const handleToggleEmailVerified = async (userId: string, currentStatus: boolean) => {
-    if (!token) {
-      toast.error("Not authenticated");
-      return;
-    }
-
     try {
       await updateUser(userId, { emailVerified: !currentStatus });
       toast.success("Email verification status updated!");

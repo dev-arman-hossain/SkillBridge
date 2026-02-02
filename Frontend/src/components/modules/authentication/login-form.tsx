@@ -32,25 +32,11 @@ export function LoginForm({
   const router = useRouter();
   const { data: session } = authClient.useSession();
 
-  // Auto-redirect logged-in users to their dashboard
+  // Auto-redirect logged-in users to role selection
   useEffect(() => {
     if (session?.user) {
-      const getDashboardUrl = () => {
-        const role = session.user.role;
-        switch (role) {
-          case "ADMIN":
-            return "/admin-dashboard";
-          case "TUTOR":
-            return "/tutor-dashboard";
-          case "STUDENT":
-            return "/student-dashboard";
-          default:
-            return "/select-role";
-        }
-      };
-
-      console.log("Redirecting logged-in user to dashboard:", getDashboardUrl());
-      router.push(getDashboardUrl());
+      // Redirect to role selection page after login
+      router.push("/select-role");
     }
   }, [session, router]);
 

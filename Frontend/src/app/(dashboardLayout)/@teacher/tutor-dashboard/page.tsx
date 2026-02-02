@@ -292,5 +292,3 @@ export default function TeacherDashboard() {
     </div>
   );
 }
-
-export default page;

@@ -95,17 +95,8 @@ const Navbar1 = ({
   };
 
   const getDashboardUrl = () => {
-    const role = session?.user?.role;
-    switch (role) {
-      case "ADMIN":
-        return "/admin-dashboard";
-      case "TUTOR":
-        return "/tutor-dashboard";
-      case "STUDENT":
-        return "/student-dashboard";
-      default:
-        return "/select-role";
-    }
+    // Always redirect to select-role since role is not available in session
+    return "/select-role";
   };
 
   return (
@@ -169,21 +160,6 @@ const Navbar1 = ({
                         Profile Settings
                       </Link>
                     </DropdownMenuItem>
-                    {session.user.role === "TUTOR" && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link href="/tutor/profile" className="cursor-pointer">
-                            Tutor Profile
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/tutor/availability" className="cursor-pointer">
-                            Manage Availability
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={handleSignOut}
@@ -279,17 +255,6 @@ const Navbar1 = ({
                         <Button asChild variant="outline">
                           <Link href="/dashboard/profile">Profile Settings</Link>
                         </Button>
-
-                        {session.user.role === "TUTOR" && (
-                          <>
-                            <Button asChild variant="outline">
-                              <Link href="/tutor/profile">Tutor Profile</Link>
-                            </Button>
-                            <Button asChild variant="outline">
-                              <Link href="/tutor/availability">Availability</Link>
-                            </Button>
-                          </>
-                        )}
 
                         <Button
                           variant="outline"
