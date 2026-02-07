@@ -29,11 +29,12 @@ export const auth = betterAuth({
     account: {
       create: {
         after: async (account, context) => {
-          if (!context || account.providerId === "credential") return;
-          const existing = await context.internalAdapter.findAccounts(account.userId);
-          if (existing.some((a) => a.providerId === "credential")) return;
-          const hash = await context.password.hash(DEFAULT_OAUTH_PASSWORD);
-          await context.internalAdapter.linkAccount({
+          if (!context?.context || account.providerId === "credential") return;
+          const ctx = context.context;
+          const existing = await ctx.internalAdapter.findAccounts(account.userId);
+          if (existing.some((a: { providerId: string }) => a.providerId === "credential")) return;
+          const hash = await ctx.password.hash(DEFAULT_OAUTH_PASSWORD);
+          await ctx.internalAdapter.linkAccount({
             userId: account.userId,
             providerId: "credential",
             accountId: account.userId,
