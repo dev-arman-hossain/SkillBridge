@@ -7,19 +7,23 @@ import Reviews from "@/components/modules/homepage/Reviews";
 import StartLearning from "@/components/modules/homepage/StartLearning";
 import { cookies } from "next/headers";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export default async function Home() {
   const cookieStore = await cookies();
 
-  console.log(cookieStore.toString());
-
-  const res = await fetch("http://localhost:5000/api/auth/get-session", {
-    headers: {
-      Cookie: cookieStore.toString(),
-    },
-    cache: "no-store"
-  });
-
-  const session = await res.json();
+  let session: unknown = null;
+  try {
+    const res = await fetch(`${API_BASE}/auth/get-session`, {
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+      cache: "no-store",
+    });
+    session = await res.json();
+  } catch {
+    // Backend unreachable (e.g. on Vercel without API); render page without session
+  }
 
   return (
     <div>
