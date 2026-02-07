@@ -105,6 +105,7 @@ export interface UserWithProfile extends User {
   tutorProfile?: {
     id: string;
     biography: string;
+    profileImage?: string;
     qualifications: string;
     categories: Array<{
       id: string;

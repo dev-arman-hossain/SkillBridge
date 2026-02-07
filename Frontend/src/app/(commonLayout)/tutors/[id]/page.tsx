@@ -232,14 +232,16 @@ export default function TutorDetailPage() {
                             </div>
                           </div>
                           <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                            {new Date(review.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              },
-                            )}
+                            {review.createdAt
+                              ? new Date(review.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  },
+                                )
+                              : "—"}
                           </span>
                         </div>
                         {review.comment && (
