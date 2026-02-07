@@ -3,14 +3,14 @@
 import { useTutor, useTutorReviews } from "@/hooks/useApi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useParams, useRouter } from "next/navigation";
-import { Star, ArrowLeft, Calendar, Award, BookOpen } from "lucide-react";
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import { Star, ArrowLeft, Calendar, Award, BookOpen, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function TutorDetailPage() {
   const params = useParams();
   const tutorId = params.id as string;
-  const router = useRouter();
 
   const { tutor, loading, error } = useTutor(tutorId);
   const { reviews, loading: reviewsLoading } = useTutorReviews(
@@ -19,12 +19,15 @@ export default function TutorDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
-          <div className="animate-pulse space-y-6 max-w-5xl mx-auto">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-            <div className="h-96 bg-gray-200 rounded"></div>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-16">
+          <div className="animate-pulse space-y-8 max-w-6xl mx-auto">
+            <div className="h-10 bg-muted rounded-xl w-1/4" />
+            <div className="h-48 md:h-56 bg-muted rounded-2xl" />
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 h-80 bg-muted rounded-2xl" />
+              <div className="h-64 bg-muted rounded-2xl" />
+            </div>
           </div>
         </div>
       </div>
@@ -33,91 +36,100 @@ export default function TutorDetailPage() {
 
   if (error || !tutor) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
-          <Card className="p-8 max-w-2xl mx-auto border-red-200 bg-red-50">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">
-              Tutor Not Found
-            </h2>
-            <p className="text-red-600 mb-6">
-              {error || "The tutor you're looking for doesn't exist."}
-            </p>
-            <Link href="/tutors">
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Tutors
-              </Button>
-            </Link>
-          </Card>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8 border-border bg-card text-card-foreground text-center">
+          <p className="text-destructive font-medium mb-2">Tutor Not Found</p>
+          <p className="text-muted-foreground text-sm mb-6">
+            {error || "The tutor you're looking for doesn't exist."}
+          </p>
+          <Link href="/tutors">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Tutors
+            </Button>
+          </Link>
+        </Card>
       </div>
     );
   }
 
   const averageRating = 5.0;
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-5 dark:opacity-10">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-              backgroundSize: "40px 40px",
-            }}
-          ></div>
-        </div>
+  const profileImage = tutor.tutorProfile?.profileImage;
 
-        <div className="relative container mx-auto px-4 py-12">
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero – same style as Find Tutors page */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 dark:from-emerald-900 dark:via-teal-900 dark:to-slate-900 text-white py-14 md:py-20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,255,255,0.15),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,255,255,0.06),transparent)]" />
+        <div className="relative container mx-auto px-4">
           <Link href="/tutors">
             <Button
               variant="ghost"
-              className="mb-8 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+              className="mb-6 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Tutors
             </Button>
           </Link>
 
-          <div className="flex flex-col md:flex-row items-start gap-10 pb-8">
-            <div className="relative group">
-              <div className="w-40 h-40 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-2xl shadow-teal-500/30 transition-transform duration-500 group-hover:scale-105">
-                <span className="text-6xl font-bold text-white">
-                  {tutor.name.charAt(0).toUpperCase()}
-                </span>
+          <div className="flex flex-col md:flex-row items-start gap-8 md:gap-10 pb-4">
+            <div className="relative group flex-shrink-0">
+              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center overflow-hidden ring-2 ring-white/20 shadow-xl transition-transform duration-300 group-hover:scale-[1.02]">
+                {profileImage ? (
+                  <>
+                    <Image
+                      src={profileImage}
+                      alt={tutor.name}
+                      fill
+                      className="object-cover"
+                      sizes="160px"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = "none";
+                        const wrap = target.closest(".relative");
+                        const fallback = wrap?.querySelector(".tutor-initial");
+                        if (fallback instanceof HTMLElement) fallback.style.display = "flex";
+                      }}
+                    />
+                    <span className="tutor-initial absolute inset-0 flex items-center justify-center text-4xl md:text-5xl font-bold text-white/90 bg-white/10" style={{ display: "none" }}>
+                      {tutor.name.charAt(0).toUpperCase()}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-4xl md:text-5xl font-bold text-white/90">
+                    {tutor.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
-              <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-lg">
-                <div className="w-3 h-3 bg-white rounded-full"></div>
+              <div className="absolute -bottom-1 -right-1 bg-emerald-400 rounded-full p-1.5 shadow-lg ring-2 ring-white/30">
+                <div className="w-2.5 h-2.5 bg-white rounded-full" />
               </div>
             </div>
 
-            <div className="flex-1 space-y-6">
-              <div>
-                <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent tracking-tight">
-                  {tutor.name}
-                </h1>
-                <p className="text-teal-300 dark:text-teal-200 text-xl font-medium">
-                  {tutor.tutorProfile?.qualifications || "Professional Tutor"}
-                </p>
+            <div className="flex-1 min-w-0 space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 text-sm font-medium text-white/95">
+                <Sparkles className="w-4 h-4" />
+                Expert tutor
               </div>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
+                {tutor.name}
+              </h1>
+              <p className="text-white/90 text-lg md:text-xl">
+                {tutor.tutorProfile?.qualifications || "Professional Tutor"}
+              </p>
 
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20">
-                  <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2 bg-white/15 dark:bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20">
+                  <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-5 h-5 fill-yellow-400 text-yellow-400"
-                      />
+                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500" />
                     ))}
                   </div>
-                  <span className="text-lg font-semibold ml-1">
-                    {averageRating}
-                  </span>
+                  <span className="text-sm font-semibold text-white/95 ml-1">{averageRating}</span>
                 </div>
                 <span className="text-white/60">•</span>
-                <span className="text-white/80 text-lg">
+                <span className="text-white/90">
                   {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
                 </span>
               </div>
@@ -125,7 +137,7 @@ export default function TutorDetailPage() {
               <Link href={`/booking/${tutorId}`}>
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold px-8 py-6 rounded-xl shadow-xl shadow-teal-500/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-teal-500/40"
+                  className="rounded-xl bg-white text-emerald-700 hover:bg-white/95 dark:text-teal-900 font-semibold px-6 py-5 shadow-lg transition-opacity hover:opacity-90"
                 >
                   <Calendar className="w-5 h-5 mr-2" />
                   Book a Session
@@ -136,18 +148,18 @@ export default function TutorDetailPage() {
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
-          <div className="md:col-span-2 space-y-8">
-            <Card className="border-0 shadow-xl dark:shadow-slate-950/50 rounded-2xl overflow-hidden hover:shadow-2xl transition-shadow duration-500 bg-white dark:bg-slate-900 dark:border dark:border-slate-800">
-              <div className="p-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-1 h-8 bg-gradient-to-b from-teal-500 to-cyan-500 rounded-full"></div>
-                  <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+      <div className="container mx-auto px-4 py-10 md:py-14">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="md:col-span-2 space-y-6">
+            <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm overflow-hidden">
+              <div className="p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-1 h-8 bg-primary rounded-full" />
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground">
                     About Me
                   </h2>
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">
+                <p className="text-muted-foreground leading-relaxed">
                   {tutor.tutorProfile?.biography ||
                     "This tutor hasn't added a biography yet."}
                 </p>
@@ -155,97 +167,92 @@ export default function TutorDetailPage() {
             </Card>
 
             {tutor.tutorProfile?.qualifications && (
-              <Card className="border-0 shadow-xl dark:shadow-slate-950/50 rounded-2xl overflow-hidden hover:shadow-2xl transition-shadow duration-500 bg-white dark:bg-slate-900 dark:border dark:border-slate-800">
-                <div className="p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg">
-                      <Award className="w-6 h-6 text-white" />
+              <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-6 md:p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Award className="w-5 h-5 text-primary" />
                     </div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-xl md:text-2xl font-bold text-foreground">
                       Qualifications
                     </h2>
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">
+                  <p className="text-muted-foreground leading-relaxed">
                     {tutor.tutorProfile.qualifications}
                   </p>
                 </div>
               </Card>
             )}
 
-            <Card className="border-0 shadow-xl dark:shadow-slate-950/50 rounded-2xl overflow-hidden hover:shadow-2xl transition-shadow duration-500 bg-white dark:bg-slate-900 dark:border dark:border-slate-800">
-              <div className="p-8">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-1 h-8 bg-gradient-to-b from-teal-500 to-cyan-500 rounded-full"></div>
-                  <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+            <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm overflow-hidden">
+              <div className="p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-1 h-8 bg-primary rounded-full" />
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground">
                     Student Reviews
                   </h2>
                 </div>
 
                 {reviewsLoading ? (
-                  <div className="space-y-6">
+                  <div className="space-y-5">
                     {[...Array(3)].map((_, i) => (
                       <div key={i} className="animate-pulse">
-                        <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-lg w-3/4 mb-3"></div>
-                        <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/2"></div>
+                        <div className="h-4 bg-muted rounded-lg w-3/4 mb-2" />
+                        <div className="h-4 bg-muted rounded-lg w-1/2" />
                       </div>
                     ))}
                   </div>
                 ) : reviews.length === 0 ? (
-                  <div className="text-center py-12 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                    <div className="w-16 h-16 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Star className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+                  <div className="text-center py-10 bg-muted/50 rounded-xl">
+                    <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Star className="w-7 h-7 text-muted-foreground" />
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-lg">
+                    <p className="text-muted-foreground">
                       No reviews yet. Be the first to leave a review!
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-6">
-                    {reviews.map((review, index) => (
+                  <div className="space-y-5">
+                    {reviews.map((review) => (
                       <div
                         key={review.id}
-                        className="border-b border-slate-200 dark:border-slate-700 pb-6 last:border-0 transition-all duration-300 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 -mx-4 px-4 py-4 rounded-xl"
+                        className="border-b border-border pb-5 last:border-0 last:pb-0 transition-colors hover:bg-muted/30 -mx-2 px-4 py-3 rounded-xl"
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                              {(review.student?.name || "S")
-                                .charAt(0)
-                                .toUpperCase()}
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <div className="flex items-start gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
+                              {(review.student?.name || "S").charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                              <p className="font-semibold text-slate-900 dark:text-white text-lg">
+                            <div className="min-w-0">
+                              <p className="font-semibold text-foreground truncate">
                                 {review.student?.name || "Student"}
                               </p>
-                              <div className="flex items-center gap-1 mt-1">
+                              <div className="flex items-center gap-1 mt-0.5">
                                 {[...Array(5)].map((_, i) => (
                                   <Star
                                     key={i}
                                     className={`w-4 h-4 ${
                                       i < parseInt(review.rating)
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "fill-slate-200 text-slate-200 dark:fill-slate-700 dark:text-slate-700"
+                                        ? "fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500"
+                                        : "fill-muted text-muted"
                                     }`}
                                   />
                                 ))}
                               </div>
                             </div>
                           </div>
-                          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                          <span className="text-xs text-muted-foreground font-medium flex-shrink-0">
                             {review.createdAt
-                              ? new Date(review.createdAt).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  },
-                                )
+                              ? new Date(review.createdAt).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })
                               : "—"}
                           </span>
                         </div>
                         {review.comment && (
-                          <p className="text-slate-600 dark:text-slate-300 mt-3 ml-16 leading-relaxed">
+                          <p className="text-muted-foreground text-sm mt-2 pl-[52px] leading-relaxed">
                             {review.comment}
                           </p>
                         )}
@@ -258,82 +265,61 @@ export default function TutorDetailPage() {
           </div>
 
           <div className="space-y-6">
-            <Card className="border-0 shadow-xl dark:shadow-slate-950/50 rounded-2xl overflow-hidden hover:shadow-2xl transition-shadow duration-500 bg-white dark:bg-slate-900 dark:border dark:border-slate-800">
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-5">
-                  <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                  <h3 className="font-bold text-slate-900 dark:text-white text-lg">
-                    Teaching Subjects
-                  </h3>
+            <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm overflow-hidden p-5 md:p-6">
+              <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
+                <BookOpen className="w-4 h-4 text-muted-foreground" />
+                Teaching Subjects
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {tutor.tutorProfile?.categories?.map((cat: any) => (
+                  <span
+                    key={cat.id}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-medium"
+                  >
+                    {cat.name}
+                  </span>
+                )) ?? (
+                  <span className="text-muted-foreground text-sm">No subjects listed</span>
+                )}
+              </div>
+            </Card>
+
+            <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm overflow-hidden p-5 md:p-6">
+              <h3 className="font-semibold text-foreground mb-4 text-base">
+                Performance Stats
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground text-sm font-medium">Total Reviews</span>
+                  <span className="font-semibold text-foreground">{reviews.length}</span>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {tutor.tutorProfile?.categories?.map((cat: any) => (
-                    <span
-                      key={cat.id}
-                      className="px-4 py-2 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/50 dark:to-cyan-950/50 text-teal-700 dark:text-teal-300 rounded-lg text-sm font-semibold border border-teal-100 dark:border-teal-800 hover:border-teal-300 dark:hover:border-teal-600 transition-colors duration-300"
-                    >
-                      {cat.name}
-                    </span>
-                  )) || (
-                    <span className="text-slate-500 dark:text-slate-400 text-sm">
-                      No subjects listed
-                    </span>
-                  )}
+                <div className="h-px bg-border" />
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground text-sm font-medium">Average Rating</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-foreground">{averageRating}</span>
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500" />
+                  </div>
+                </div>
+                <div className="h-px bg-border" />
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground text-sm font-medium">Response Time</span>
+                  <span className="font-medium text-foreground text-sm px-2.5 py-1 rounded-full bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                    Fast
+                  </span>
                 </div>
               </div>
             </Card>
 
-            <Card className="border-0 shadow-xl dark:shadow-slate-950/50 rounded-2xl overflow-hidden hover:shadow-2xl transition-shadow duration-500 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-900 dark:border dark:border-slate-800">
-              <div className="p-6">
-                <h3 className="font-bold text-slate-900 dark:text-white mb-5 text-lg">
-                  Performance Stats
-                </h3>
-                <div className="space-y-5">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">
-                      Total Reviews
-                    </span>
-                    <span className="font-bold text-2xl text-slate-900 dark:text-white">
-                      {reviews.length}
-                    </span>
-                  </div>
-                  <div className="h-px bg-slate-200 dark:bg-slate-700"></div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">
-                      Average Rating
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-2xl text-slate-900 dark:text-white">
-                        {averageRating}
-                      </span>
-                      <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    </div>
-                  </div>
-                  <div className="h-px bg-slate-200 dark:bg-slate-700"></div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">
-                      Response Time
-                    </span>
-                    <span className="font-bold text-slate-900 dark:text-white px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-full text-sm">
-                      Fast
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="border-0 shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-teal-500 to-cyan-600 dark:from-teal-600 dark:to-cyan-700 text-white hover:shadow-2xl hover:scale-105 transition-all duration-500">
-              <div className="p-6">
-                <h3 className="font-bold text-xl mb-2">
-                  Ready to Start Learning?
-                </h3>
-                <p className="text-teal-50 dark:text-teal-100 text-sm mb-5 leading-relaxed">
-                  Book your first session with {tutor.name.split(" ")[0]} and
-                  begin your learning journey today!
+            <Card className="border-border bg-card rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-800 dark:via-teal-800 dark:to-cyan-800 text-white shadow-sm">
+              <div className="p-5 md:p-6">
+                <h3 className="font-semibold text-lg mb-1">Ready to Start Learning?</h3>
+                <p className="text-white/90 text-sm mb-4 leading-relaxed">
+                  Book your first session with {tutor.name.split(" ")[0]} and begin your learning journey today!
                 </p>
                 <Link href={`/booking/${tutorId}`}>
-                  <Button className="w-full bg-white text-teal-600 hover:bg-slate-50 dark:bg-slate-100 dark:text-teal-700 dark:hover:bg-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-                    <Calendar className="w-5 h-5 mr-2" />
+                  <Button className="w-full rounded-xl bg-white text-emerald-700 hover:bg-white/95 dark:text-teal-900 font-semibold py-5 shadow-sm">
+                    <Calendar className="w-4 h-4 mr-2" />
                     Book Now
                   </Button>
                 </Link>
