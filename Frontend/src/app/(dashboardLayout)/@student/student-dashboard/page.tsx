@@ -5,7 +5,7 @@ import { authClient } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Calendar, Clock, User, Video } from "lucide-react";
+import { Calendar, Clock, User, Video, BookOpen, Sparkles } from "lucide-react";
 
 export default function StudentDashboard() {
   const { data: session } = authClient.useSession();
@@ -15,11 +15,15 @@ export default function StudentDashboard() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
+      <div className="min-h-screen bg-background">
+        <div className="animate-pulse space-y-8 p-6 md:p-8">
+          <div className="h-10 bg-muted rounded-xl w-1/3" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-28 bg-muted rounded-2xl" />
+            ))}
+          </div>
+          <div className="h-64 bg-muted rounded-2xl" />
         </div>
       </div>
     );
@@ -27,9 +31,13 @@ export default function StudentDashboard() {
 
   if (error) {
     return (
-      <div className="p-8">
-        <Card className="p-6 border-red-200 bg-red-50">
-          <p className="text-red-600">Error loading bookings: {error}</p>
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="max-w-md w-full p-8 border-border bg-card text-center">
+          <p className="text-destructive font-medium mb-2">Error loading bookings</p>
+          <p className="text-muted-foreground text-sm mb-6">{error}</p>
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            Try again
+          </Button>
         </Card>
       </div>
     );
@@ -43,191 +51,192 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div className="p-8 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {session?.user?.name}!
-        </h1>
-        <p className="text-gray-600 mt-2">Manage your tutoring sessions</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Bookings</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {bookings.length}
-              </p>
-            </div>
-            <Calendar className="w-12 h-12 text-blue-500" />
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 dark:from-emerald-900 dark:via-teal-900 dark:to-slate-900 text-white py-10 md:py-14">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,255,255,0.15),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,255,255,0.06),transparent)]" />
+        <div className="relative container mx-auto px-4 md:px-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 text-sm font-medium text-white/95 mb-4">
+            <Sparkles className="w-4 h-4" />
+            Student Dashboard
           </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Upcoming</p>
-              <p className="text-3xl font-bold text-teal-600">
-                {upcomingBookings.length}
-              </p>
-            </div>
-            <Clock className="w-12 h-12 text-teal-500" />
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Completed</p>
-              <p className="text-3xl font-bold text-green-600">
-                {pastBookings.length}
-              </p>
-            </div>
-            <User className="w-12 h-12 text-green-500" />
-          </div>
-        </Card>
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Upcoming Sessions
-          </h2>
-          <Link href="/tutors">
-            <Button
-              variant="outline"
-              className="border-teal-500 text-teal-600 hover:bg-teal-50"
-            >
-              Book New Session
-            </Button>
-          </Link>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+            Welcome back, {session?.user?.name?.split(" ")[0] || "Student"}!
+          </h1>
+          <p className="text-white/90 mt-2 text-lg">
+            Manage your tutoring sessions and track your progress.
+          </p>
         </div>
+      </section>
 
-        {upcomingBookings.length === 0 ? (
-          <Card className="p-8 text-center">
-            <p className="text-gray-500 mb-4">No upcoming sessions</p>
-            <Link href="/tutors">
-              <Button className="bg-teal-500 hover:bg-teal-600">
-                Find a Tutor
-              </Button>
-            </Link>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {upcomingBookings.map((booking) => (
-              <Card
-                key={booking.id}
-                className="p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
-                        <User className="w-6 h-6 text-teal-600" />
+      <div className="container mx-auto px-4 md:px-6 py-10 md:py-14">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Bookings</p>
+                  <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{bookings.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-primary/10">
+                  <Calendar className="w-8 h-8 text-primary" />
+                </div>
+              </div>
+            </Card>
+            <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
+                  <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{upcomingBookings.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-500/15">
+                  <Clock className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                </div>
+              </div>
+            </Card>
+            <Card className="border-border bg-card text-card-foreground rounded-2xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Completed</p>
+                  <p className="text-2xl md:text-3xl font-bold text-foreground mt-1">{pastBookings.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-500/15">
+                  <BookOpen className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Upcoming */}
+          <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <h2 className="text-xl font-bold text-foreground">Upcoming Sessions</h2>
+              <Link href="/tutors">
+                <Button className="rounded-xl bg-primary text-primary-foreground hover:opacity-90 w-full sm:w-auto">
+                  Find a Tutor
+                </Button>
+              </Link>
+            </div>
+
+            {upcomingBookings.length === 0 ? (
+              <Card className="border-border bg-card rounded-2xl shadow-sm p-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-7 h-7 text-muted-foreground" />
+                </div>
+                <p className="text-foreground font-medium mb-1">No upcoming sessions</p>
+                <p className="text-muted-foreground text-sm mb-6">Book a session with a tutor to get started.</p>
+                <Link href="/tutors">
+                  <Button className="rounded-xl bg-primary text-primary-foreground hover:opacity-90">
+                    Find a Tutor
+                  </Button>
+                </Link>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {upcomingBookings.map((booking) => (
+                  <Card
+                    key={booking.id}
+                    className="border-border bg-card text-card-foreground rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center">
+                            <User className="w-6 h-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-foreground">
+                              {booking.tutor?.user?.name || "Tutor"}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {booking.tutor?.biography || "Professional Tutor"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(booking.sessionDate).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            {new Date(booking.sessionDate).toLocaleTimeString()}
+                          </span>
+                          <span className="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 text-xs font-medium">
+                            {booking.status}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {booking.tutor?.user?.name || "Tutor"}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {booking.tutor?.biography || "Professional Tutor"}
-                        </p>
+                      <div className="flex flex-col gap-2 shrink-0">
+                        {booking.sessionLink && (
+                          <a href={booking.sessionLink} target="_blank" rel="noopener noreferrer">
+                            <Button className="w-full rounded-xl bg-primary text-primary-foreground hover:opacity-90">
+                              <Video className="w-4 h-4 mr-2" />
+                              Join Session
+                            </Button>
+                          </a>
+                        )}
+                        <Link href={`/bookings/${booking.id}`}>
+                          <Button variant="outline" className="w-full rounded-xl">
+                            View Details
+                          </Button>
+                        </Link>
                       </div>
                     </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
 
-                    <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(booking.sessionDate).toLocaleDateString()}
+          {/* Past */}
+          {pastBookings.length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-4">Past Sessions</h2>
+              <div className="space-y-4">
+                {pastBookings.slice(0, 5).map((booking) => (
+                  <Card key={booking.id} className="border-border bg-card text-card-foreground rounded-2xl shadow-sm p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                          <User className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground">
+                            {booking.tutor?.user?.name || "Tutor"}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(booking.sessionDate).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        {new Date(booking.sessionDate).toLocaleTimeString()}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            booking.status === "COMPLETED"
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
                           {booking.status}
                         </span>
+                        {booking.status === "COMPLETED" && (
+                          <Link href={`/bookings/${booking.id}/review`}>
+                            <Button size="sm" variant="outline" className="rounded-lg">
+                              Leave Review
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    {booking.sessionLink && (
-                      <a
-                        href={booking.sessionLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button className="w-full bg-teal-500 hover:bg-teal-600">
-                          <Video className="w-4 h-4 mr-2" />
-                          Join Session
-                        </Button>
-                      </a>
-                    )}
-                    <Link href={`/bookings/${booking.id}`}>
-                      <Button variant="outline" className="w-full">
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {pastBookings.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Past Sessions
-          </h2>
-          <div className="space-y-4">
-            {pastBookings.slice(0, 5).map((booking) => (
-              <Card key={booking.id} className="p-6 bg-gray-50">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">
-                          {booking.tutor?.user?.name || "Tutor"}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {new Date(booking.sessionDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        booking.status === "COMPLETED"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {booking.status}
-                    </span>
-                    {booking.status === "COMPLETED" && (
-                      <Link href={`/bookings/${booking.id}/review`}>
-                        <Button size="sm" variant="outline">
-                          Leave Review
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

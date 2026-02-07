@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { ModeToggle } from "@/providers/ModeToggle";
-import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
@@ -105,18 +104,8 @@ const Navbar1 = ({
        
         <nav className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
-           
-            <Link href={logo.url} className="flex items-center gap-2">
-              <Image
-                src={logo.src}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-                width={100}
-                height={100}
-              />
-              <span className="text-lg font-semibold tracking-tighter">
-                {logo.title}
-              </span>
+            <Link href={logo.url} className="shrink-0 text-xl font-bold tracking-tight text-foreground hover:opacity-90 transition-opacity" aria-label={logo.title}>
+              {logo.title}
             </Link>
             <div className="flex items-center">
               <NavigationMenu>
@@ -187,18 +176,8 @@ const Navbar1 = ({
 
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
-    
-            <Link href={logo.url} className="flex items-center gap-2">
-              <Image
-                src={logo.src}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-                width={100}
-                height={100}
-              />
-              <span className="text-sm font-semibold tracking-tighter">
-                {logo.title}
-              </span>
+            <Link href={logo.url} className="shrink-0 text-lg font-bold tracking-tight text-foreground" aria-label={logo.title}>
+              {logo.title}
             </Link>
             <div className="flex items-center gap-2">
               <ModeToggle />
@@ -210,20 +189,7 @@ const Navbar1 = ({
                 </SheetTrigger>
                 <SheetContent className="overflow-y-auto">
                   <SheetHeader>
-                    <SheetTitle>
-                      <Link href={logo.url} className="flex items-center gap-2">
-                        <Image
-                          src={logo.src}
-                          className="max-h-8 dark:invert"
-                          alt={logo.alt}
-                          width={100}
-                          height={100}
-                        />
-                        <span className="text-lg font-semibold">
-                          {logo.title}
-                        </span>
-                      </Link>
-                    </SheetTitle>
+                    <SheetTitle className="text-left font-semibold text-foreground">Menu</SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-6 p-4">
                 
