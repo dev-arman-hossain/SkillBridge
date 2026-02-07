@@ -16,9 +16,16 @@ const app: Application = express();
 app.use(morgan("dev"));
 
 app.use(express.json());
+
+const allowedOrigins = process.env.APP_URL
+  ? process.env.APP_URL.split(",").map((o) => o.trim()).filter(Boolean)
+  : ["http://localhost:3000"];
 app.use(
   cors({
-    origin: process.env.APP_URL || "http://localhost:3000",
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(null, false);
+    },
     credentials: true,
   })
 );

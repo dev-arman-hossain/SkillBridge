@@ -22,7 +22,7 @@ const Featured_Tutor = () => {
             </div>
 
             <Link
-              href="#"
+              href="/tutors"
               className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-xl border border-teal-500 px-5 py-2 text-teal-600 hover:bg-teal-50 transition"
             >
               View All Tutors →
