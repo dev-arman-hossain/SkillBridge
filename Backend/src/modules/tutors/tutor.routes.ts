@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { tutorController } from "./tutor.controller";
 import auth, { UserRole } from "../../middleware/auth.middleware";
-import { prisma } from "../../../lib/pisma";
+import { prisma } from "../../../lib/prisma";
 import { sendSuccess, sendError } from "../../utils/ApiError";
 
 const router: Router = Router();

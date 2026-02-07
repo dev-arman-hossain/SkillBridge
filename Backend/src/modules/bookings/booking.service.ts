@@ -1,4 +1,4 @@
-import { prisma } from "../../../lib/pisma";
+import { prisma } from "../../../lib/prisma";
 
 const createBooking = async (studentId: string, tutorId: string, sessionDate: Date, sessionLink?: string) => {
   let tutorProfile = await prisma.tutorProfile.findUnique({

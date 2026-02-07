@@ -1,4 +1,4 @@
-import { prisma } from "../../../lib/pisma";
+import { prisma } from "../../../lib/prisma";
 import { ApiError } from "../../utils/ApiError";
 
 const alltutors = async (filters?: {

@@ -1,4 +1,4 @@
-import { prisma } from "../../../lib/pisma";
+import { prisma } from "../../../lib/prisma";
 
 const createReview = async (
   bookingId: string,

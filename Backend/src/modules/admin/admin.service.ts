@@ -1,4 +1,4 @@
-import { prisma } from "../../../lib/pisma";
+import { prisma } from "../../../lib/prisma";
 import { Role } from "../../../generated/prisma/client";
 import { ApiError } from "../../utils/ApiError";
 

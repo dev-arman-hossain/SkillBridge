@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./pisma";
+import { prisma } from "./prisma";
 
 /** Default password set for users who sign in via OAuth (e.g. Google) so they can also sign in with email/password. */
 const DEFAULT_OAUTH_PASSWORD = "12345678";
