@@ -78,7 +78,7 @@ export default function TeacherDashboard() {
           <p className="text-gray-600 mb-6">
             You need to create a tutor profile before you can start teaching.
           </p>
-          <Link href="/tutor/profile">
+          <Link href="/tutor-dashboard/profile">
             <Button className="bg-teal-500 hover:bg-teal-600">
               Create Profile
             </Button>
@@ -154,7 +154,7 @@ export default function TeacherDashboard() {
               <p className="text-sm text-gray-500 mt-1">Based on {reviews.length} reviews</p>
             </div>
             <div className="text-right">
-              <Link href="/tutor/reviews">
+              <Link href="/tutor-dashboard/reviews">
                 <Button variant="outline" className="border-yellow-500 text-yellow-700 hover:bg-yellow-100">
                   View All Reviews
                 </Button>
@@ -165,13 +165,13 @@ export default function TeacherDashboard() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link href="/tutor/availability">
+        <Link href="/tutor-dashboard/availability">
           <Button variant="outline" className="w-full border-teal-500 text-teal-600 hover:bg-teal-50">
             <Calendar className="w-4 h-4 mr-2" />
             Manage Availability
           </Button>
         </Link>
-        <Link href="/tutor/profile">
+        <Link href="/tutor-dashboard/profile">
           <Button variant="outline" className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
             <User className="w-4 h-4 mr-2" />
             Edit Profile
@@ -240,7 +240,7 @@ export default function TeacherDashboard() {
                         </Button>
                       </a>
                     )}
-                    <Link href={`/bookings/${booking.id}`}>
+                    <Link href={`/tutor-dashboard/bookings/${booking.id}`}>
                       <Button variant="outline" className="w-full">
                         View Details
                       </Button>

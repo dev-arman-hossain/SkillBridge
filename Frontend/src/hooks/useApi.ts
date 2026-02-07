@@ -317,6 +317,35 @@ export function useCreateTutorProfile() {
   return { createProfile, loading, error };
 }
 
+export function useUpdateTutorProfile() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateProfile = async (
+    userId: string,
+    data: {
+      biography?: string;
+      profileImage?: string;
+      qualifications?: string;
+      categoryIds?: string[];
+    }
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await tutorApi.updateTutorProfile(userId, data);
+      return response;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { updateProfile, loading, error };
+}
+
 // Booking Hooks
 export function useUserBookings(userId: string | null) {
   const [bookings, setBookings] = useState<Booking[]>([]);

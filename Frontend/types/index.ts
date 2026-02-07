@@ -76,10 +76,11 @@ export interface Review {
   tutorId: string;
   rating: string;
   comment: string;
+  reviewDate?: string;
   student?: User;
   tutor?: TutorProfile;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateReviewData {

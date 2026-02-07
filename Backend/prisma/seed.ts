@@ -1,4 +1,6 @@
 import "dotenv/config";
+import { randomUUID } from "node:crypto";
+import { hashPassword } from "better-auth/crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client.js";
 
@@ -6,8 +8,29 @@ const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
+/** Password for all seeded users (email/password login). */
+const SEED_PASSWORD = "Password123!";
+
+async function ensureCredentialAccount(userId: string, passwordHash: string) {
+  const existing = await prisma.account.findFirst({
+    where: { userId, providerId: "credential" },
+  });
+  if (existing) return;
+  await prisma.account.create({
+    data: {
+      id: randomUUID(),
+      userId,
+      accountId: userId,
+      providerId: "credential",
+      password: passwordHash,
+    },
+  });
+}
+
 async function main() {
   console.log("🌱 Starting database seeding...");
+
+  const passwordHash = await hashPassword(SEED_PASSWORD);
 
   // Create users with different roles
   const users = await Promise.all([
@@ -160,6 +183,25 @@ async function main() {
 
   console.log(`✅ Created/Updated ${users.length} users`);
 
+  // Ensure every seeded user has a credential account (password: Password123!)
+  const seededUserIds = [
+    "admin-001",
+    "tutor-001",
+    "tutor-002",
+    "tutor-003",
+    "tutor-004",
+    "student-001",
+    "student-002",
+    "student-003",
+    "student-004",
+    "user-001",
+    "user-002",
+  ];
+  for (const userId of seededUserIds) {
+    await ensureCredentialAccount(userId, passwordHash);
+  }
+  console.log(`✅ Credential accounts set (password: ${SEED_PASSWORD})`);
+
   // Create tutor profiles for tutors
   const tutorProfiles = await Promise.all([
     prisma.tutorProfile.upsert({
@@ -263,71 +305,148 @@ async function main() {
 
   console.log(`✅ Created/Updated ${categories.length} categories`);
 
-  const availabilities = await Promise.all([
-    // Tutor 001 - Available Tuesday 9am-5pm
-    prisma.availability.create({
-      data: {
+  // Link tutors to categories (by unique category name)
+  await prisma.tutorProfile.update({
+    where: { userId: "tutor-001" },
+    data: { categories: { set: [{ name: "Mathematics" }] } },
+  });
+  await prisma.tutorProfile.update({
+    where: { userId: "tutor-002" },
+    data: { categories: { set: [{ name: "Languages" }] } },
+  });
+  await prisma.tutorProfile.update({
+    where: { userId: "tutor-003" },
+    data: {
+      categories: { set: [{ name: "Programming" }, { name: "Mathematics" }] },
+    },
+  });
+  await prisma.tutorProfile.update({
+    where: { userId: "tutor-004" },
+    data: { categories: { set: [{ name: "Science" }] } },
+  });
+  console.log("✅ Linked tutor profiles to categories");
+
+  // Clear and recreate availability for seeded tutors (idempotent re-run)
+  const tutorProfileIds = tutorProfiles.map((p) => p.id);
+  await prisma.availability.deleteMany({
+    where: { tutorId: { in: tutorProfileIds } },
+  });
+
+  await prisma.availability.createMany({
+    data: [
+      {
         tutorId: tutorProfiles[0].id,
         dayOfWeek: "Tuesday",
         startTime: new Date("2026-02-03T09:00:00Z"),
         endTime: new Date("2026-02-03T17:00:00Z"),
       },
-    }),
-
-    // Tutor 001 - Available Thursday 9am-5pm
-    prisma.availability.create({
-      data: {
+      {
         tutorId: tutorProfiles[0].id,
         dayOfWeek: "Thursday",
         startTime: new Date("2026-02-05T09:00:00Z"),
         endTime: new Date("2026-02-05T17:00:00Z"),
       },
-    }),
-
-    // Tutor 002 - Available Wednesday 10am-6pm
-    prisma.availability.create({
-      data: {
+      {
         tutorId: tutorProfiles[1].id,
         dayOfWeek: "Wednesday",
         startTime: new Date("2026-02-04T10:00:00Z"),
         endTime: new Date("2026-02-04T18:00:00Z"),
       },
-    }),
-
-    // Tutor 003 - Available Friday 1pm-9pm
-    prisma.availability.create({
-      data: {
+      {
         tutorId: tutorProfiles[2].id,
         dayOfWeek: "Friday",
         startTime: new Date("2026-02-06T13:00:00Z"),
         endTime: new Date("2026-02-06T21:00:00Z"),
       },
-    }),
-
-    // Tutor 004 - Available Monday 9am-5pm
-    prisma.availability.create({
-      data: {
+      {
         tutorId: tutorProfiles[3].id,
         dayOfWeek: "Monday",
         startTime: new Date("2026-02-02T09:00:00Z"),
         endTime: new Date("2026-02-02T17:00:00Z"),
       },
-    }),
-
-    // Tutor 004 - Available Saturday 10am-4pm
-    prisma.availability.create({
-      data: {
+      {
         tutorId: tutorProfiles[3].id,
         dayOfWeek: "Saturday",
         startTime: new Date("2026-02-07T10:00:00Z"),
         endTime: new Date("2026-02-07T16:00:00Z"),
       },
-    }),
-  ]);
+    ],
+  });
+  console.log("✅ Created availability slots");
 
-  console.log(`✅ Created ${availabilities.length} availability slots`);
+  // Dummy bookings (students -> tutors)
+  const existingBookings = await prisma.booking.count();
+  if (existingBookings === 0) {
+    await prisma.booking.createMany({
+      data: [
+        {
+          studentId: "student-001",
+          tutorId: tutorProfiles[0].id,
+          sessionDate: new Date("2026-02-10T14:00:00Z"),
+          sessionLink: "https://meet.example.com/abc123",
+          status: "COMPLETED",
+        },
+        {
+          studentId: "student-001",
+          tutorId: tutorProfiles[2].id,
+          sessionDate: new Date("2026-02-15T16:00:00Z"),
+          status: "PENDING",
+        },
+        {
+          studentId: "student-002",
+          tutorId: tutorProfiles[1].id,
+          sessionDate: new Date("2026-02-12T10:00:00Z"),
+          sessionLink: "https://meet.example.com/def456",
+          status: "COMPLETED",
+        },
+        {
+          studentId: "student-003",
+          tutorId: tutorProfiles[3].id,
+          sessionDate: new Date("2026-02-18T11:00:00Z"),
+          status: "PENDING",
+        },
+      ],
+    });
+    console.log("✅ Created dummy bookings");
+  }
+
+  // Dummy reviews
+  const existingReviews = await prisma.review.count();
+  if (existingReviews === 0) {
+    await prisma.review.createMany({
+      data: [
+        {
+          studentId: "student-001",
+          tutorId: tutorProfiles[0].id,
+          rating: "5",
+          comment: "Excellent math tutor! Cleared all my doubts.",
+        },
+        {
+          studentId: "student-002",
+          tutorId: tutorProfiles[1].id,
+          rating: "5",
+          comment: "Sarah is very patient and great at explaining grammar.",
+        },
+        {
+          studentId: "student-001",
+          tutorId: tutorProfiles[2].id,
+          rating: "4",
+          comment: "Solid programming session, would book again.",
+        },
+      ],
+    });
+    console.log("✅ Created dummy reviews");
+  }
 
   console.log("🎉 Database seeding completed successfully!");
+  console.log("");
+  console.log("📋 Seeded login credentials (email / password):");
+  console.log("   Admin:  admin@skillbridge.com / " + SEED_PASSWORD);
+  console.log("   Tutor:  john.tutor@skillbridge.com / " + SEED_PASSWORD);
+  console.log("   Tutor:  sarah.tutor@skillbridge.com / " + SEED_PASSWORD);
+  console.log("   Student: alice.student@skillbridge.com / " + SEED_PASSWORD);
+  console.log("   Student: bob.student@skillbridge.com / " + SEED_PASSWORD);
+  console.log("   (All seeded users use password: " + SEED_PASSWORD + ")");
 }
 
 main()
