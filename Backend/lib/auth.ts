@@ -11,6 +11,20 @@ export const auth = betterAuth({
   }),
   baseURL: process.env.BASE_URL || "http://localhost:5000",
   trustedOrigins: [process.env.APP_URL!],
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    disableCSRFCheck: true,
+  },
   user: {
     additionalFields: {
       role: {
@@ -23,7 +37,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
-    // requireEmailVerification: true,
   },
   databaseHooks: {
     account: {

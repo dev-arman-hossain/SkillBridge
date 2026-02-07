@@ -17,35 +17,45 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
-const allowedOrigins = process.env.APP_URL
-  ? process.env.APP_URL.split(",").map((o) => o.trim()).filter(Boolean)
-  : ["http://localhost:3000"];
+const allowedOrigins = [
+  process.env.APP_URL || "http://localhost:3000",
+  process.env.PROD_APP_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(null, false);
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/skill-bridge.*\.vercel\.app$/.test(origin) ||
+        /^https:\/\/.*\.vercel\.app$/.test(origin);
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
 
-// Auth routes (better-auth)
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
-// API routes
 app.use("/api", tutorRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 
-// Health check
 app.get("/", (_req: Request, res: Response) => {
   res.json({ status: "ok", message: "SkillBridge API is running" });
 });
-
-// 404 handler
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
