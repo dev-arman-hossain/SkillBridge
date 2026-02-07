@@ -12,7 +12,7 @@ export const Banner = () => {
 
           <div className="py-6 w-150">
             <h1 className="text-[60px] text-[#131720] font-extrabold text-foreground leading-tight ">
-              Learn Anything from
+              Learn Anything from 
               <span className="text-[#2B9E9C]">Expert Tutors</span> Worldwide
             </h1>
           </div>
@@ -21,10 +21,10 @@ export const Banner = () => {
             your learning goals. Personalized education at your fingertips.
           </p>
           <button className="bg-teal-500 text-white px-6 py-3 rounded-xl hover:bg-teal-600 transition">
-            <Link href="#">Find Tutors Now</Link>
+            <Link href="/tutors">Find Tutors Now</Link>
           </button>
           <button className="ml-4 bg-white text-teal-500 border border-teal-500 px-6 py-3 rounded-xl hover:bg-teal-50 transition">
-            <Link href="#">Watch Demo</Link>
+            <Link href="/tutors">View All Tutors</Link>
           </button>
         </div>
         <div className="">
