@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import { userApi } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -27,20 +28,7 @@ export default function SelectRolePage() {
     setSelectedRole(role);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/admin/users/${session.user.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ role }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to update role");
-      }
+      await userApi.updateRole(role);
 
       toast.success(`Role set to ${role}!`);
 
@@ -92,9 +80,8 @@ export default function SelectRolePage() {
 
         <div className="grid md:grid-cols-2 gap-8">
           <Card
-            className={`p-8 cursor-pointer transition-all hover:shadow-2xl hover:-translate-y-2 ${
-              selectedRole === "STUDENT" ? "ring-4 ring-teal-500" : ""
-            }`}
+            className={`p-8 cursor-pointer transition-all hover:shadow-2xl hover:-translate-y-2 ${selectedRole === "STUDENT" ? "ring-4 ring-teal-500" : ""
+              }`}
             onClick={() => !isLoading && handleRoleSelection("STUDENT")}
           >
             <div className="text-center">
@@ -149,9 +136,8 @@ export default function SelectRolePage() {
           </Card>
 
           <Card
-            className={`p-8 cursor-pointer transition-all hover:shadow-2xl hover:-translate-y-2 ${
-              selectedRole === "TUTOR" ? "ring-4 ring-blue-500" : ""
-            }`}
+            className={`p-8 cursor-pointer transition-all hover:shadow-2xl hover:-translate-y-2 ${selectedRole === "TUTOR" ? "ring-4 ring-blue-500" : ""
+              }`}
             onClick={() => !isLoading && handleRoleSelection("TUTOR")}
           >
             <div className="text-center">

@@ -13,7 +13,7 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.APP_URL!],
   session: {
     cookieCache: {
-      enabled: true,
+      enabled: false,
       maxAge: 5 * 60,
     },
   },

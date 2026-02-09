@@ -18,13 +18,15 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 const allowedOrigins = [
-  process.env.APP_URL || "http://localhost:3000",
+  process.env.APP_URL,
+  "http://localhost:3000",
   process.env.PROD_APP_URL,
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
       const isAllowed =
@@ -35,7 +37,9 @@ app.use(
       if (isAllowed) {
         callback(null, true);
       } else {
-        callback(null, false);
+        console.log("CORS blocked origin:", origin);
+        console.log("Allowed origins:", allowedOrigins);
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,

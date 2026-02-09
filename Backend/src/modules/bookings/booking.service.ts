@@ -59,6 +59,21 @@ const createBooking = async (studentId: string, tutorId: string, sessionDate: Da
     );
   }
 
+  // Check for existing bookings at the exact same time
+  const existingBooking = await prisma.booking.findFirst({
+    where: {
+      tutorId: tutorProfile.id,
+      sessionDate: sessionDateTime,
+      status: {
+        in: ["PENDING", "COMPLETED"],
+      },
+    },
+  });
+
+  if (existingBooking) {
+    throw new Error("Tutor is already booked for this time slot.");
+  }
+
   const booking = await prisma.booking.create({
     data: {
       studentId,

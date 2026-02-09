@@ -256,8 +256,19 @@ const updateTutorProfile = async (
     categoryIds?: string[];
   }
 ) => {
-  const user = await prisma.user.findUnique({
+  let targetUserId = id;
+
+  // Check if the id provided is actually a tutorProfileId
+  const tutorProfile = await prisma.tutorProfile.findUnique({
     where: { id },
+  });
+
+  if (tutorProfile) {
+    targetUserId = tutorProfile.userId;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: targetUserId },
   });
 
   if (!user) {
@@ -267,7 +278,7 @@ const updateTutorProfile = async (
   const { categoryIds, ...profileFields } = profileData;
 
   const updatedProfile = await prisma.tutorProfile.update({
-    where: { userId: id },
+    where: { userId: targetUserId },
     data: {
       ...profileFields,
       ...(categoryIds && {
