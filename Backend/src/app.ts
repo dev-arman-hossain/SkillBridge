@@ -17,12 +17,10 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
-// Updated CORS configuration for production
 const allowedOrigins = [
   process.env.APP_URL,
-  process.env.PROD_APP_URL,
   "http://localhost:3000",
-  "https://skill-bridge-gamma-amber.vercel.app",
+  process.env.PROD_APP_URL,
 ].filter(Boolean);
 
 app.use(
@@ -60,13 +58,8 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
-  res.json({ 
-    status: "ok", 
-    message: "SkillBridge API is running",
-    environment: process.env.NODE_ENV 
-  });
+  res.json({ status: "ok", message: "SkillBridge API is running" });
 });
-
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
