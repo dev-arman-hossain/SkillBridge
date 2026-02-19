@@ -52,10 +52,10 @@ const auth = (...roles: UserRole[]) => {
         emailVerified: session.user.emailVerified,
       };
 
-      console.log("Auth Middleware - User:", session);
+      // console.log("Auth Middleware - User:", session);
 
-      console.log("Auth Middleware - User Role:", req.user.role);
-      console.log("Auth Middleware - Required Roles:", roles);
+      // console.log("Auth Middleware - User Role:", req.user.role);
+      // console.log("Auth Middleware - Required Roles:", roles);
 
       if (roles.length && !roles.includes(req.user.role as UserRole)) {
         console.log("Auth Middleware - Blocked: Insufficient Role");
