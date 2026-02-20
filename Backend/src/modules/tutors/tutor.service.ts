@@ -80,7 +80,7 @@ const alltutors = async (filters?: {
     const reviews = tutor.tutorProfile?.reviews || [];
     const avgRating =
       reviews.length > 0
-        ? reviews.reduce((sum, r) => sum + parseFloat(r.rating), 0) / reviews.length
+        ? reviews.reduce((sum: number, r: { rating: string }) => sum + parseFloat(r.rating), 0) / reviews.length
         : 0;
 
     return {
@@ -92,7 +92,7 @@ const alltutors = async (filters?: {
 
   // Filter by minimum rating if provided
   if (filters?.minRating) {
-    return tutorsWithRating.filter((t) => t.averageRating >= filters.minRating!);
+    return tutorsWithRating.filter((t: { averageRating: number }) => t.averageRating >= filters.minRating!);
   }
 
   return tutorsWithRating;
@@ -167,7 +167,7 @@ const getTutorById = async (id: string) => {
   const reviews = tutor.tutorProfile?.reviews || [];
   const avgRating =
     reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + parseFloat(r.rating), 0) / reviews.length
+      ? reviews.reduce((sum: number, r: { rating: string }) => sum + parseFloat(r.rating), 0) / reviews.length
       : 0;
 
   return {
@@ -175,7 +175,7 @@ const getTutorById = async (id: string) => {
     averageRating: Math.round(avgRating * 10) / 10,
     reviewCount: reviews.length,
     completedSessions:
-      tutor.tutorProfile?.bookings?.filter((b) => b.status === "COMPLETED").length || 0,
+      tutor.tutorProfile?.bookings?.filter((b: { status: string }) => b.status === "COMPLETED").length || 0,
   };
 };
 

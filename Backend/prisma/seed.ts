@@ -2,7 +2,7 @@ import "dotenv/config";
 import { randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaClient } from "../generated/prisma/client";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
@@ -327,7 +327,7 @@ async function main() {
   console.log("✅ Linked tutor profiles to categories");
 
   // Clear and recreate availability for seeded tutors (idempotent re-run)
-  const tutorProfileIds = tutorProfiles.map((p) => p.id);
+  const tutorProfileIds = tutorProfiles.map((p: { id: string }) => p.id);
   await prisma.availability.deleteMany({
     where: { tutorId: { in: tutorProfileIds } },
   });

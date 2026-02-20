@@ -198,7 +198,7 @@ const getDashboardStats = async (userId: string) => {
 
     const avgRating =
       reviews.length > 0
-        ? reviews.reduce((sum, r) => sum + parseFloat(r.rating), 0) / reviews.length
+        ? reviews.reduce((sum: number, r: { rating: string }) => sum + parseFloat(r.rating), 0) / reviews.length
         : 0;
 
     return {
