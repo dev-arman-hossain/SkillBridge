@@ -1,5 +1,5 @@
 import { prisma } from "../../../lib/prisma";
-import { Role } from "../../../generated/prisma/client";
+import { Role } from '@prisma/client';
 import { ApiError } from "../../utils/ApiError";
 
 const getAllUsers = async (filters?: {
