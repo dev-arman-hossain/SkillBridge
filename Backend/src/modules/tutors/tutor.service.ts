@@ -68,7 +68,7 @@ const alltutors = async (filters?: {
   });
 
   // Filter by category if provided
-  let filteredTutors = tutors;
+  let filteredTutors: typeof tutors = tutors;
   if (filters?.category) {
     filteredTutors = tutors.filter((tutor) =>
       tutor.tutorProfile?.categories.some((cat) => cat.id === filters.category)
@@ -76,7 +76,7 @@ const alltutors = async (filters?: {
   }
 
   // Calculate average rating for each tutor
-  const tutorsWithRating = filteredTutors.map((tutor) => {
+  const tutorsWithRating = filteredTutors.map((tutor: (typeof filteredTutors)[number]) => {
     const reviews = tutor.tutorProfile?.reviews || [];
     const avgRating =
       reviews.length > 0
