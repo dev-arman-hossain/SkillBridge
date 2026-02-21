@@ -10,7 +10,12 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
-  trustedOrigins: [process.env.APP_URL!],
+  trustedOrigins: [
+  process.env.APP_URL!,
+  process.env.PROD_APP_URL!,
+  "http://localhost:3000",
+  "https://skillbridge-vrtu.onrender.com",
+],
   session: {
     cookieCache: {
       enabled: false,
