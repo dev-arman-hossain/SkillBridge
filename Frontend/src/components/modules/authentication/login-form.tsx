@@ -83,7 +83,7 @@ export function LoginForm({
       const frontendURL = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: frontendURL,
+       callbackURL: `${frontendURL}/select-role`,
       });
     } catch (error: any) {
       console.error("Google login error:", error);
